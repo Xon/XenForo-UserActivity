@@ -122,7 +122,7 @@ class SV_UserActivity_Model extends XenForo_Model
             $start = XenForo_Application::$time  - $options->onlineStatusTimeout * 60;
             $start = $start - ($start  % self::SAMPLE_INTERVAL);
             $end = XenForo_Application::$time + 1;
-            $onlineRecords = $credis->zrangebyscore($key, $start, $end);
+            $onlineRecords = $credis->zrevrangebyscore($key, $end,  $start);
         }
 
         if(is_array($onlineRecords))
