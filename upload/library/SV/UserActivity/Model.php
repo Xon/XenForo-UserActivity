@@ -41,10 +41,6 @@ class SV_UserActivity_Model extends XenForo_Model
                 $result = $credis->sadd($gckey, $contentKeyPart);
                 $credis->expire($gckey, $onlineStatusTimeout);
             }
-            else
-            {
-                break;
-            }
 
             $loopGuard++;
         }
