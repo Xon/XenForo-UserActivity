@@ -12,7 +12,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivi
             if ($visitor->hasPermission('RainDD_UA_PermissionsMain', 'RainDD_UA_ThreadViewers'))
             {
                 $response->params['RainDD_UA_ThreadUsersViewing'] = $this->_getSVUserActivityModel()->getUsersViewing('thread', $response->params['thread']['thread_id'], $visitor->toArray());
-                $response->params['RainDD_UA_ThreadViewerPermission'] = true;
+                $response->params['RainDD_UA_ThreadViewerPermission'] = !empty($response->params['RainDD_UA_ThreadUsersViewing']);
             }
         }
         return $response;

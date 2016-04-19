@@ -26,7 +26,7 @@ class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Mo
                     if($userId == $user['user_id'])
                     {
                         $contentType = self::$tracked_Controllers[$controllerName][0];
-                        $this->_getSVUserActivityModel()->updateSessionActivity($contentType, $inputParams[$requiredKey], $user);
+                        $this->_getSVUserActivityModel()->updateSessionActivity($contentType, $inputParams[$requiredKey], $ip, $robotKey, $user);
                     }
                 }
             }
@@ -34,8 +34,8 @@ class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Mo
         return parent::updateSessionActivity($userId, $ip, $controllerName, $action, $viewState, $inputParams, $viewDate, $robotKey);
     }
 
-	protected function _getSVUserActivityModel()
-	{
-		return $this->getModelFromCache('SV_UserActivity_Model');
-	}
+    protected function _getSVUserActivityModel()
+    {
+        return $this->getModelFromCache('SV_UserActivity_Model');
+    }
 }
