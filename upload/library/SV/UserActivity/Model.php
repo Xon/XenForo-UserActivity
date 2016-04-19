@@ -4,6 +4,44 @@ class SV_UserActivity_Model extends XenForo_Model
 {
     const SAMPLE_INTERVAL = 30;
 
+    public function GarbageCollectActivity()
+    {
+        $registry = $this->_getDataRegistryModel();
+        $cache = $this->_getCache(true);
+        if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
+        {
+            // do not have a fallback
+            return;
+        }
+
+        $options = XenForo_Application::getOptions();
+        $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
+        // we need to manually expire records out of the per content hash set if they are kept alive with activity
+        $gckey = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activityGC";
+        $datakey = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.";
+
+        $end = XenForo_Application::$time - $onlineStatusTimeout;
+        $end = $end - ($end  % self::SAMPLE_INTERVAL);
+
+        $loopGuard = 10000;
+        while($loopGuard > 0)
+        {
+            $contentKeyPart = $credis->spop($gckey);
+            // the actual prune operation
+            $fullkey = $datakey.$contentKeyPart;
+            $credis->zremrangebyscore($fullkey, 0, $end);
+            // don't matter about a race condition, as they will have aded it back into the set
+            if ($credis->zcard($fullkey))
+            {
+                // add the key back for the next GC pass
+                $result = $credis->sadd($gckey, $contentKeyPart);
+                $credis->expire($gckey, $onlineStatusTimeout);
+            }
+
+            $loopGuard++;
+        }
+    }
+
     public function updateSessionActivity($contentType, $contentId, $ip, $robotKey, array $viewingUser = null)
     {
         $this->standardizeViewingUserReference($viewingUser);
@@ -82,6 +120,7 @@ class SV_UserActivity_Model extends XenForo_Model
 
             $options = XenForo_Application::getOptions();
             $start = XenForo_Application::$time  - $options->onlineStatusTimeout * 60;
+            $start = $start - ($start  % self::SAMPLE_INTERVAL);
             $end = XenForo_Application::$time + 1;
             $onlineRecords = $credis->zrangebyscore($key, $start, $end);
         }

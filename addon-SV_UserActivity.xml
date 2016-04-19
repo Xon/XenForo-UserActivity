@@ -10,7 +10,9 @@
     <listener event_id="load_class" execute_order="10" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Thread" description="XenForo_ControllerPublic_Thread"/>
     <listener event_id="load_class" execute_order="10" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_Model_User" description="XenForo_Model_User"/>
   </code_event_listeners>
-  <cron/>
+  <cron>
+    <entry entry_id="SV_UserActivity_GC" cron_class="SV_UserActivity_CronEntry_ActivityGarbageCollect" cron_method="run" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["-1"],"minutes":["0","5","10","15","20","25","30","35","40","45","50","55"]}]]></entry>
+  </cron>
   <email_templates/>
   <email_template_modifications/>
   <optiongroups>
@@ -31,6 +33,12 @@
       <sub_options></sub_options>
       <relation group_id="RainDD_UA_Options" display_order="120"/>
     </option>
+    <option option_id="SV_UA_TrackRobots" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="10"/>
+    </option>
   </optiongroups>
   <permissions>
     <permission_groups>
@@ -45,12 +53,15 @@
     </interface_groups>
   </permissions>
   <phrases>
+    <phrase title="cron_entry_SV_UserActivity_GC" version_id="1000000" version_string="1.0.0"><![CDATA[User Activity Cleanup]]></phrase>
     <phrase title="option_group_RainDD_UA_Options" version_id="1000000" version_string="1.0.0"><![CDATA[User Activity]]></phrase>
     <phrase title="option_group_RainDD_UA_Options_description" version_id="1000000" version_string="1.0.0"><![CDATA[]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewPos" version_id="1000000" version_string="1.0.0"><![CDATA[Viewing Thread Container Position]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewPos_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Enable and choose where in the thread view the container for Viewing Thread will appear.]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewType" version_id="1000000" version_string="1.0.0"><![CDATA[Viewing Thread Display Type]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewType_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Display users name or avatar for users Viewing Thread.]]></phrase>
+    <phrase title="option_SV_UA_TrackRobots" version_id="1000000" version_string="1.0.0"><![CDATA[Track Robots]]></phrase>
+    <phrase title="option_SV_UA_TrackRobots_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Show/Hid robots from user activity]]></phrase>
     <phrase title="permission_group_RainDD_UA_PermissionsMain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
     <phrase title="permission_interface_raindd_ua_pigm" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
     <phrase title="permission_RainDD_UA_PermissionsMain_RainDD_UA_ThreadReaders" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Can view users who have read a thread]]></phrase>
