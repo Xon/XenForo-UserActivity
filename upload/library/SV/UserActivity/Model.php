@@ -27,6 +27,10 @@ class SV_UserActivity_Model extends XenForo_Model
         while($loopGuard > 0)
         {
             $contentKeyPart = $credis->spop($gckey);
+            if (empty($contentKeyPart))
+            {
+                break;
+            }
             // the actual prune operation
             $fullkey = $datakey.$contentKeyPart;
             $credis->zremrangebyscore($fullkey, 0, $end);
@@ -36,6 +40,10 @@ class SV_UserActivity_Model extends XenForo_Model
                 // add the key back for the next GC pass
                 $result = $credis->sadd($gckey, $contentKeyPart);
                 $credis->expire($gckey, $onlineStatusTimeout);
+            }
+            else
+            {
+                break;
             }
 
             $loopGuard++;
