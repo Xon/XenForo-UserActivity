@@ -129,7 +129,9 @@ class SV_UserActivity_Model extends XenForo_Model
         {
             $displayType = $options->RainDD_UA_ThreadViewType;
             $seen = array($viewingUser['user_id'] => true);
-            foreach($onlineRecords as $key => $rec)
+            $bypassUserPrivacy = $this->_getUserModel()->canBypassUserPrivacy($null, $viewingUser);
+
+            foreach($onlineRecords as $rec)
             {
                 $rec = json_decode($rec, true);
                 if ($rec['user_id'])
@@ -138,18 +140,19 @@ class SV_UserActivity_Model extends XenForo_Model
                     {
                         $seen[$rec['user_id']] = true;
                         $memberCount += 1;
-                        $records[] = $rec;
+                        if($rec['activity_visible'] || $bypassUserPrivacy)
+                        {
+                            $records[] = $rec;
+                        }
                     }
                 }
                 else if (empty($rec['robot']))
                 {
                     $guestCount += 1;
-                    unset($onlineRecords[$key]);
                 }
                 else
                 {
                     $robotCount += 1;
-                    unset($onlineRecords[$key]);
                 }
             }
         }
@@ -161,5 +164,10 @@ class SV_UserActivity_Model extends XenForo_Model
             'robots'  => $robotCount,
             'records' => $records,
         );
+    }
+
+    protected function _getUserModel()
+    {
+        return $this->getModelFromCache('XenForo_Model_User');
     }
 }
