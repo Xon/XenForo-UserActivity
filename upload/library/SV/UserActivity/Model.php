@@ -51,7 +51,7 @@ class SV_UserActivity_Model extends XenForo_Model
         (
             'user_id' => $viewingUser['user_id'],
             'username' => $viewingUser['username'],
-            'activity_visible' => $viewingUser['activity_visible'],
+            'visible' => $viewingUser['visible'] && $viewingUser['activity_visible'],
             'robot'  => empty($robotKey) ? 0 : 1,
         );
 
@@ -140,7 +140,7 @@ class SV_UserActivity_Model extends XenForo_Model
                     {
                         $seen[$rec['user_id']] = true;
                         $memberCount += 1;
-                        if($rec['activity_visible'] || $bypassUserPrivacy)
+                        if(!empty($rec['visible']) || $bypassUserPrivacy)
                         {
                             $score = $score - ($score % self::SAMPLE_INTERVAL);
                             $rec['effective_last_activity'] = $score;
