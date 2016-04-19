@@ -122,7 +122,7 @@ class SV_UserActivity_Model extends XenForo_Model
             $start = XenForo_Application::$time  - $options->onlineStatusTimeout * 60;
             $start = $start - ($start  % self::SAMPLE_INTERVAL);
             $end = XenForo_Application::$time + 1;
-            $onlineRecords = $credis->zrevrangebyscore($key, $end,  $start);
+            $onlineRecords = $credis->zrevrangebyscore($key, $end, $start, array('withscores' => true));
         }
 
         if(is_array($onlineRecords))
@@ -131,7 +131,7 @@ class SV_UserActivity_Model extends XenForo_Model
             $seen = array($viewingUser['user_id'] => true);
             $bypassUserPrivacy = $this->_getUserModel()->canBypassUserPrivacy($null, $viewingUser);
 
-            foreach($onlineRecords as $rec)
+            foreach($onlineRecords as $rec => $score)
             {
                 $rec = json_decode($rec, true);
                 if ($rec['user_id'])
@@ -142,6 +142,8 @@ class SV_UserActivity_Model extends XenForo_Model
                         $memberCount += 1;
                         if($rec['activity_visible'] || $bypassUserPrivacy)
                         {
+                            $score = $score - ($score % self::SAMPLE_INTERVAL);
+                            $rec['effective_last_activity'] = $score;
                             $records[] = $rec;
                         }
                     }
