@@ -2,6 +2,12 @@
 
 class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Thread
 {
+    protected function _preDispatch($action)
+    {
+        $this->_getSVUserActivityModel()->registerHandler('XenForo_ControllerPublic_Thread', 'thread', 'thread_id');
+        return parent::_preDispatch($action);
+    }
+
     public function actionIndex()
     {
         $response = parent::actionIndex();

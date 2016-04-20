@@ -4,6 +4,22 @@ class SV_UserActivity_Model extends XenForo_Model
 {
     const SAMPLE_INTERVAL = 30;
 
+    static $handlers = array();
+
+    public function registerHandler($controllerName, $contentType, $contentIdField)
+    {
+        self::$handlers[$controllerName] = array($contentType, $contentIdField);
+    }
+
+    public function getHandler($controllerName)
+    {
+        if (empty(self::$handlers[$controllerName]))
+        {
+            return false;
+        }
+        return self::$handlers[$controllerName];
+    }
+
     public function GarbageCollectActivity()
     {
         $registry = $this->_getDataRegistryModel();

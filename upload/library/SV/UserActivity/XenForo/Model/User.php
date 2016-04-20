@@ -3,17 +3,14 @@
 class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Model_User
 {
     static $SV_UA_TrackRobots = null;
-    static $tracked_Controllers = array
-    (
-        'XenForo_ControllerPublic_Thread' => array('thread', 'thread_id'),
-        //'XenForo_ControllerPublic_Conversation' => array('conversation', 'conversation_id'),
-    );
 
     public function updateSessionActivity($userId, $ip, $controllerName, $action, $viewState, array $inputParams, $viewDate = null, $robotKey = '')
     {
-        if (!empty(self::$tracked_Controllers[$controllerName]))
+        $userActivityModel = $this->_getSVUserActivityModel();
+        $handler = $userActivityModel->getHandler($controllerName);
+        if (!empty($handler))
         {
-            $requiredKey = self::$tracked_Controllers[$controllerName][1];
+            $requiredKey = $handler[1];
             if (!empty($inputParams[$requiredKey]))
             {
                 if (self::$SV_UA_TrackRobots === null)
@@ -25,8 +22,8 @@ class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Mo
                     $user = XenForo_Visitor::getInstance()->toArray();
                     if($userId == $user['user_id'])
                     {
-                        $contentType = self::$tracked_Controllers[$controllerName][0];
-                        $this->_getSVUserActivityModel()->updateSessionActivity($contentType, $inputParams[$requiredKey], $ip, $robotKey, $user);
+                        $contentType = $handler[0];
+                        $userActivityModel->updateSessionActivity($contentType, $inputParams[$requiredKey], $ip, $robotKey, $user);
                     }
                 }
             }
