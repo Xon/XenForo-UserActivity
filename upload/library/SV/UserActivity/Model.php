@@ -20,7 +20,7 @@ class SV_UserActivity_Model extends XenForo_Model
         return self::$handlers[$controllerName];
     }
 
-    public function GarbageCollectActivity()
+    public function GarbageCollectActivity($targetRunTime = null)
     {
         $registry = $this->_getDataRegistryModel();
         $cache = $this->_getCache(true);
@@ -39,9 +39,12 @@ class SV_UserActivity_Model extends XenForo_Model
         $end = XenForo_Application::$time - $onlineStatusTimeout;
         $end = $end - ($end  % self::SAMPLE_INTERVAL);
 
+        $keys = array();
         $loopGuard = 10000;
+        $s = microtime(true);
         while($loopGuard > 0)
         {
+            // randomly grab a key to inspect
             $contentKeyPart = $credis->spop($gckey);
             if (empty($contentKeyPart))
             {
@@ -50,15 +53,25 @@ class SV_UserActivity_Model extends XenForo_Model
             // the actual prune operation
             $fullkey = $datakey.$contentKeyPart;
             $credis->zremrangebyscore($fullkey, 0, $end);
-            // don't matter about a race condition, as they will have aded it back into the set
+            // don't matter about a race condition, as they will have added it back into the set
             if ($credis->zcard($fullkey))
             {
-                // add the key back for the next GC pass
-                $result = $credis->sadd($gckey, $contentKeyPart);
-                $credis->expire($gckey, $onlineStatusTimeout);
+                $keys[] = $contentKeyPart;
             }
 
-            $loopGuard++;
+            $runTime = microtime(true) - $s;
+            if ($targetRunTime && $runTime > $targetRunTime)
+            {
+                break;
+            }
+            $loopGuard--;
+        }
+        
+        // add the keys back in after we have finished inspecting to prevent hitting the same keys we have hit before.
+        if ($keys)
+        {
+            $result = $credis->sadd($gckey, $keys);
+            $credis->expire($gckey, $onlineStatusTimeout);
         }
     }
 
@@ -147,7 +160,6 @@ class SV_UserActivity_Model extends XenForo_Model
 
         if(is_array($onlineRecords))
         {
-            $displayType = $options->RainDD_UA_ThreadViewType;
             $seen = array($viewingUser['user_id'] => true);
             $bypassUserPrivacy = $this->_getUserModel()->canBypassUserPrivacy($null, $viewingUser);
 
