@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="Basic User Activity" version_string="1.0.0" version_id="1000000" url="http://www.raindd.com/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="SV_UserActivity" title="Basic User Activity" version_string="1.0.0 Alpha4" version_id="1000004" url="http://www.raindd.com/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -39,6 +39,18 @@
       <sub_options></sub_options>
       <relation group_id="RainDD_UA_Options" display_order="10"/>
     </option>
+    <option option_id="UA_fillFactor" edit_format="textbox" data_type="unsigned_numeric" can_backup="1">
+      <default_value>1.2</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="30"/>
+    </option>
+    <option option_id="UA_pruneChance" edit_format="textbox" data_type="unsigned_numeric" can_backup="1">
+      <default_value>0.1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="20"/>
+    </option>
   </optiongroups>
   <permissions>
     <permission_groups>
@@ -62,6 +74,10 @@
     <phrase title="option_RainDD_UA_ThreadViewType_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Display users name or avatar for users Viewing Thread.]]></phrase>
     <phrase title="option_SV_UA_TrackRobots" version_id="1000000" version_string="1.0.0"><![CDATA[Track Robots]]></phrase>
     <phrase title="option_SV_UA_TrackRobots_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Show/Hid robots from user activity]]></phrase>
+    <phrase title="option_UA_fillFactor" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[Fill Factor]]></phrase>
+    <phrase title="option_UA_fillFactor_explain" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[When doing a prune operation, the number of inactive users must be greater than active users times this fill factor.]]></phrase>
+    <phrase title="option_UA_pruneChance" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[Prune Chance]]></phrase>
+    <phrase title="option_UA_pruneChance_explain" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[When the list of active users per content type is returned, this is the probability that a prune operation will be considered.]]></phrase>
     <phrase title="permission_group_RainDD_UA_PermissionsMain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
     <phrase title="permission_interface_raindd_ua_pigm" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
     <phrase title="permission_RainDD_UA_PermissionsMain_RainDD_UA_ThreadReaders" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Can view users who have read a thread]]></phrase>

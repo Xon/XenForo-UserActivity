@@ -66,7 +66,7 @@ class SV_UserActivity_Model extends XenForo_Model
             }
             $loopGuard--;
         }
-        
+
         // add the keys back in after we have finished inspecting to prevent hitting the same keys we have hit before.
         if ($keys)
         {
@@ -156,6 +156,14 @@ class SV_UserActivity_Model extends XenForo_Model
             $start = $start - ($start  % self::SAMPLE_INTERVAL);
             $end = XenForo_Application::$time + 1;
             $onlineRecords = $credis->zrevrangebyscore($key, $end, $start, array('withscores' => true));
+            // check if the activity counter needs pruning
+            if (mt_rand() < $options->UA_pruneChance)
+            {
+                if ($credis->zcard($key) >= count($onlineRecords) * $options->UA_fillFactor)
+                {
+                    $credis->zremrangebyscore($key, 0, $start - 1);
+                }
+            }
         }
 
         if(is_array($onlineRecords))
