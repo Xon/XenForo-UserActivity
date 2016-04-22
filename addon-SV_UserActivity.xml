@@ -57,7 +57,6 @@
       <permission_group permission_group_id="RainDD_UA_PermissionsMain"/>
     </permission_groups>
     <permissions>
-      <permission permission_group_id="RainDD_UA_PermissionsMain" permission_id="RainDD_UA_ThreadReaders" permission_type="flag" default_value="unset" interface_group_id="raindd_ua_pigm" display_order="20"/>
       <permission permission_group_id="RainDD_UA_PermissionsMain" permission_id="RainDD_UA_ThreadViewers" permission_type="flag" default_value="unset" interface_group_id="raindd_ua_pigm" display_order="10"/>
     </permissions>
     <interface_groups>
@@ -80,7 +79,6 @@
     <phrase title="option_UA_pruneChance_explain" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[When the list of active users per content type is returned, this is the probability that a prune operation will be considered.]]></phrase>
     <phrase title="permission_group_RainDD_UA_PermissionsMain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
     <phrase title="permission_interface_raindd_ua_pigm" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
-    <phrase title="permission_RainDD_UA_PermissionsMain_RainDD_UA_ThreadReaders" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Can view users who have read a thread]]></phrase>
     <phrase title="permission_RainDD_UA_PermissionsMain_RainDD_UA_ThreadViewers" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Can view users who are viewing thread]]></phrase>
     <phrase title="RainDD_UA_Disabled" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Disabled]]></phrase>
     <phrase title="RainDD_UA_DisplayAvatar" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Avatar]]></phrase>
@@ -88,7 +86,7 @@
     <phrase title="RainDD_UA_PositionAbovePageNav" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Above PageNav]]></phrase>
     <phrase title="RainDD_UA_PositionAboveQR" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Above Quick Reply]]></phrase>
     <phrase title="RainDD_UA_PositionBelowQR" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Below Quick Reply]]></phrase>
-    <phrase title="RainDD_UA_ThreadViewingTitle" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Users Who Are Viewing This Thread <span class="footnote">(Users: {users}, Guests: {guests})</span>]]></phrase>
+    <phrase title="UA_ViewingTitle" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[Users Who Are Viewing This {ContentType} <span class="footnote">(Users: {users}, Guests: {guests})</span>]]></phrase>
     <phrase title="style_property_group_raindd_ua_main_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity]]></phrase>
     <phrase title="style_property_group_raindd_ua_main_master_desc" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[]]></phrase>
     <phrase title="style_property_RainDD_UA_Avatar_description_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[]]></phrase>
@@ -135,11 +133,11 @@
 {
 	{xen:property RainDD_UA_Avatar}
 }]]></template>
-    <template title="RainDD_UA_ThreadViewContainer" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[<xen:if is="{$RainDD_UA_ThreadViewerPermission}">
+    <template title="RainDD_UA_ThreadViewContainer" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
 	<xen:if hascontent="true">
 	<xen:require css="RainDD_UA_Thread.css" />
 	<div id="uaThreadViewContainer" class="section secondaryContent">
-		<h3>{xen:phrase RainDD_UA_ThreadViewingTitle, 'users={xen:number $RainDD_UA_ThreadUsersViewing.members}', 'guests={xen:number $RainDD_UA_ThreadUsersViewing.guests}'}</h3>	
+		<h3>{xen:phrase UA_ViewingTitle, 'ContentType={$UA_ContentType}', 'users={xen:number $UA_UsersViewing.members}', 'guests={xen:number $UA_UsersViewing.guests}'}</h3>	
 		<xen:if is="{$xenOptions.RainDD_UA_ThreadViewType} == 0">
 			<ol class="listInline commaImplode">
 		<xen:elseif is="{$xenOptions.RainDD_UA_ThreadViewType} == 1" />
@@ -147,11 +145,11 @@
 		</xen:if>
 			<xen:contentcheck>
 			<xen:if is="{$xenOptions.RainDD_UA_ThreadViewType} == 0">
-			<xen:foreach loop="$RainDD_UA_ThreadUsersViewing.records" value="$user">
+			<xen:foreach loop="$UA_UsersViewing.records" value="$user">
 				<li><xen:username user="$user" rich="true" /></li>
 			</xen:foreach>
 			<xen:elseif is="{$xenOptions.RainDD_UA_ThreadViewType} == 1" />
-			<xen:foreach loop="$RainDD_UA_ThreadUsersViewing.records" value="$user">
+			<xen:foreach loop="$UA_UsersViewing.records" value="$user">
 				<li><xen:avatar user="$user" size="s" img="true" title="{$user.username}"/></li>
 			</xen:foreach>
 			</xen:if>
