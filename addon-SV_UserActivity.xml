@@ -162,25 +162,18 @@
 </xen:if>]]></template>
   </templates>
   <public_template_modifications>
-    <modification template="thread_view" modification_key="RainDD_TA_ContainersTop" description="Adds activity containers to the top of a thread." execution_order="10" enabled="1" action="str_replace">
-      <find><![CDATA[<xen:hook name="thread_view_pagenav_before" params="{xen:array 'thread={$thread}'}" />]]></find>
-      <replace><![CDATA[$0
-<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
-	<xen:include template="RainDD_UA_ThreadViewContainer" />	
-</xen:if>]]></replace>
-    </modification>
-    <modification template="thread_view" modification_key="RainDD_TA_Containers_AfterQR" description="Adds activity containers to thread after quick reply." execution_order="10" enabled="1" action="str_replace">
-      <find><![CDATA[<xen:hook name="thread_view_qr_after" params="{xen:array 'thread={$thread}'}" />]]></find>
-      <replace><![CDATA[$0
-<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 3">
-	<xen:include template="RainDD_UA_ThreadViewContainer" />	
-</xen:if>]]></replace>
-    </modification>
-    <modification template="thread_view" modification_key="RainDD_TA_Containers_BeforeQR" description="Adds activity containers to thread before quick reply." execution_order="10" enabled="1" action="str_replace">
-      <find><![CDATA[<xen:hook name="thread_view_qr_before" params="{xen:array 'thread={$thread}'}" />]]></find>
-      <replace><![CDATA[$0
+    <modification template="thread_view" modification_key="thread_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canReplyConversation}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
+      <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
+	<xen:include template="RainDD_UA_ThreadViewContainer" />
+</xen:if>
+$1
 <xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 2">
-	<xen:include template="RainDD_UA_ThreadViewContainer" />	
+	<xen:include template="RainDD_UA_ThreadViewContainer" />
+</xen:if>
+$2
+<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 3">
+	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>]]></replace>
     </modification>
   </public_template_modifications>
