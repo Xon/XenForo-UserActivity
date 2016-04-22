@@ -20,6 +20,33 @@ class SV_UserActivity_Model extends XenForo_Model
         return self::$handlers[$controllerName];
     }
 
+    public function insertUserActivityIntoViewResponse($controllerName, &$response)
+    {
+        if ($response instanceof XenForo_ControllerResponse_View)
+        {
+            $handler = $this->getHandler($controllerName);
+            if (empty($handler))
+            {
+                return;
+            }
+            $contentType = $handler[0];
+            $contentIdField = $handler[1];
+            if (empty($response->params[$contentType][$contentIdField]))
+            {
+                return;
+            }
+
+            $visitor = XenForo_Visitor::getInstance();
+            if (!$visitor->hasPermission('RainDD_UA_PermissionsMain', 'RainDD_UA_ThreadViewers'))
+            {
+                return;
+            }
+            $response->params['UA_UsersViewing'] = $this->getUsersViewing('thread', $response->params[$contentType][$contentIdField], $visitor->toArray());
+            $response->params['UA_ViewerPermission'] = !empty($response->params['UA_UsersViewing']);
+            $response->params['UA_ContentType'] = new XenForo_Phrase($contentType);
+        }
+    }
+
     public function GarbageCollectActivity($targetRunTime = null)
     {
         $registry = $this->_getDataRegistryModel();
