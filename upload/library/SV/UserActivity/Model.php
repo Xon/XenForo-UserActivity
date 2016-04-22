@@ -84,8 +84,13 @@ class SV_UserActivity_Model extends XenForo_Model
         (
             'user_id' => $viewingUser['user_id'],
             'username' => $viewingUser['username'],
-            'visible' => $viewingUser['visible'] && $viewingUser['activity_visible'],
-            'robot'  => empty($robotKey) ? 0 : 1,
+            'visible' => $viewingUser['visible'] && $viewingUser['activity_visible'] ? 1 : null,
+            'robot'  => empty($robotKey) ? null : 1,
+            'display_style_group_id' => null,
+            'gender' => null,
+            'avatar_date' => null,
+            'gravatar' => null,
+            'ip' => null,
         );
 
         $options = XenForo_Application::getOptions();
@@ -120,9 +125,12 @@ class SV_UserActivity_Model extends XenForo_Model
             return;
         }
 
+        // encode the data
+        $raw = implode("\n", $data);
+
         // record keeping
         $key = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
-        $result = $credis->zadd($key, $score, json_encode($data));
+        $result = $credis->zadd($key, $score, $raw);
         $credis->expire($key, $options->onlineStatusTimeout * 60);
 
         // we need to manually expire records out of the per content hash set if they are kept alive with activity
@@ -166,6 +174,19 @@ class SV_UserActivity_Model extends XenForo_Model
             }
         }
 
+        $keys = array
+        (
+            'user_id',
+            'username',
+            'visible',
+            'robot',
+            'display_style_group_id',
+            'gender',
+            'avatar_date',
+            'gravatar',
+            'ip',
+        );
+
         if(is_array($onlineRecords))
         {
             $seen = array($viewingUser['user_id'] => true);
@@ -173,7 +194,12 @@ class SV_UserActivity_Model extends XenForo_Model
 
             foreach($onlineRecords as $rec => $score)
             {
-                $rec = json_decode($rec, true);
+                $data = explode("\n", $rec);
+                $rec = @array_combine($keys, $data);
+                if (empty($rec))
+                {
+                    continue;
+                }
                 if ($rec['user_id'])
                 {
                     if (empty($seen[$rec['user_id']]))
