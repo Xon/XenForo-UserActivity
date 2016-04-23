@@ -53,7 +53,7 @@ class SV_UserActivity_Model extends XenForo_Model
             {
                 return;
             }
-            $response->params['UA_UsersViewing'] = $this->getUsersViewing('thread', $response->params[$contentType][$contentIdField], $visitor->toArray());
+            $response->params['UA_UsersViewing'] = $this->getUsersViewing($contentType, $response->params[$contentType][$contentIdField], $visitor->toArray());
             $response->params['UA_ViewerPermission'] = !empty($response->params['UA_UsersViewing']);
             $response->params['UA_ContentType'] = new XenForo_Phrase($contentType);
         }
