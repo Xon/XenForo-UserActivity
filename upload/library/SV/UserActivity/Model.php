@@ -4,7 +4,19 @@ class SV_UserActivity_Model extends XenForo_Model
 {
     const SAMPLE_INTERVAL = 30;
 
-    static $handlers = array();
+    protected static $handlers = array();
+    protected static $logging = true;
+
+    public function supresssLogging()
+    {
+        self::$logging = false;
+    }
+
+    public function isLogging()
+    {
+        return self::$logging;
+    }
+
 
     public function registerHandler($controllerName, $contentType, $contentIdField)
     {

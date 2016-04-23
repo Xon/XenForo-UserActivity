@@ -8,7 +8,7 @@ class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Mo
     {
         $userActivityModel = $this->_getSVUserActivityModel();
         $handler = $userActivityModel->getHandler($controllerName);
-        if (!empty($handler))
+        if (!empty($handler) && $userActivityModel->isLogging() && $viewState == 'valid')
         {
             $requiredKey = $handler[1];
             if (!empty($inputParams[$requiredKey]))
