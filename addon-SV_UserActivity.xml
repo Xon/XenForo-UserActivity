@@ -161,7 +161,7 @@
   </templates>
   <public_template_modifications>
     <modification template="thread_view" modification_key="thread_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
-      <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canReplyConversation}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
+      <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canQuickReply}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>
