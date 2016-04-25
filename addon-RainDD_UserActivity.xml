@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="RainDD_UserActivity" title="[RainDD] User Activity" version_string="1.1.4" version_id="1010400" url="https://xenforo.com/community/resources/raindd-user-activity-users-viewed-viewing-thread.3178/" install_callback_class="RainDD_UserActivity_Install" install_callback_method="installer" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="RainDD_UserActivity_Listener" callback_method="extendThreadController" active="1" hint="XenForo_ControllerPublic_Thread" description="Extends XenForo_ControllerPublic_Thread for thread activity."/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="RainDD_UA_Options" display_order="20030" debug_only="0"/>
+    <option option_id="RainDD_UA_ThreadForceInclude" edit_format="select" data_type="integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>0={xen:phrase RainDD_UA_ShowAlways}
+2={xen:phrase RainDD_UA_HideAlways}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="150"/>
+    </option>
+    <option option_id="RainDD_UA_ThreadReadActivityPrivacy" edit_format="select" data_type="integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>0={xen:phrase RainDD_UA_ShowAlways}
+1={xen:phrase RainDD_UA_ShowCanBypass}
+2={xen:phrase RainDD_UA_HideAlways}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="250"/>
+    </option>
+    <option option_id="RainDD_UA_ThreadReadBanned" edit_format="select" data_type="integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>0={xen:phrase RainDD_UA_ShowAlways}
+1={xen:phrase RainDD_UA_ShowCanBypass}
+2={xen:phrase RainDD_UA_HideAlways}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="230"/>
+    </option>
+    <option option_id="RainDD_UA_ThreadReadLimit" edit_format="spinbox" data_type="integer" can_backup="1">
+      <default_value>60</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="210"/>
+    </option>
+    <option option_id="RainDD_UA_ThreadReadPos" edit_format="select" data_type="integer" can_backup="1">
+      <default_value>3</default_value>
+      <edit_format_params>0={xen:phrase RainDD_UA_Disabled}
+1={xen:phrase RainDD_UA_PositionAbovePageNav}
+2={xen:phrase RainDD_UA_PositionAboveQR}
+3={xen:phrase RainDD_UA_PositionBelowQR}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="200"/>
+    </option>
+    <option option_id="RainDD_UA_ThreadReadType" edit_format="radio" data_type="integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>0={xen:phrase RainDD_UA_DisplayName}
+1={xen:phrase RainDD_UA_DisplayAvatar}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="220"/>
+    </option>
+    <option option_id="RainDD_UA_ThreadViewPos" edit_format="select" data_type="integer" can_backup="1">
+      <default_value>3</default_value>
+      <edit_format_params>0={xen:phrase RainDD_UA_Disabled}
+1={xen:phrase RainDD_UA_PositionAbovePageNav}
+2={xen:phrase RainDD_UA_PositionAboveQR}
+3={xen:phrase RainDD_UA_PositionBelowQR}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="100"/>
+    </option>
+    <option option_id="RainDD_UA_ThreadViewTapatalk" edit_format="select" data_type="integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>0={xen:phrase RainDD_UA_ShowAlways}
+1={xen:phrase RainDD_UA_ShowCanBypass}
+2={xen:phrase RainDD_UA_HideAlways}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="140"/>
+    </option>
+    <option option_id="RainDD_UA_ThreadViewType" edit_format="radio" data_type="integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>0={xen:phrase RainDD_UA_DisplayName}
+1={xen:phrase RainDD_UA_DisplayAvatar}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="120"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups>
+      <permission_group permission_group_id="RainDD_UA_PermissionsMain"/>
+    </permission_groups>
+    <permissions>
+      <permission permission_group_id="RainDD_UA_PermissionsMain" permission_id="RainDD_UA_ThreadReaders" permission_type="flag" default_value="unset" interface_group_id="raindd_ua_pigm" display_order="20"/>
+      <permission permission_group_id="RainDD_UA_PermissionsMain" permission_id="RainDD_UA_ThreadViewers" permission_type="flag" default_value="unset" interface_group_id="raindd_ua_pigm" display_order="10"/>
+    </permissions>
+    <interface_groups>
+      <interface_group interface_group_id="raindd_ua_pigm" display_order="12030"/>
+    </interface_groups>
+  </permissions>
+  <phrases>
+    <phrase title="option_group_RainDD_UA_Options" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity]]></phrase>
+    <phrase title="option_group_RainDD_UA_Options_description" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadForceInclude" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Force Include Self]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadForceInclude_explain" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Choose if users who would normally be hidden will see themselves in Viewing/Read Thread.]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadActivityPrivacy" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Activity Hidden Users]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadActivityPrivacy_explain" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Xenforo 1.2/1.3 - Show/Hide users who have hidden their online status from appearing in Who Has Read Thread.
+<br>
+Xenforo 1.4+ Hide users with "show current activity" turned off from appearing in Who Has Read Thread.  Users  with hidden online status will still be shown.]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadBanned" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Banned Users]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadBanned_explain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Show or hide banned users.]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadLimit" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Container Height Limit]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadLimit_explain" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadPos" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Read Thread Container Position]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadPos_explain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Enable and choose where in the thread view the container for the Read Thread will appear.]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadType" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Read Thread Display Type]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadReadType_explain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Display users name or avatar for users Read Thread.]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadViewPos" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Viewing Thread Container Position]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadViewPos_explain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Enable and choose where in the thread view the container for Viewing Thread will appear.]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadViewTapatalk" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Tapatalk Users]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadViewTapatalk_explain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Enable/Disable showing Tapatalk users in Viewing Thread]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadViewType" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Viewing Thread Display Type]]></phrase>
+    <phrase title="option_RainDD_UA_ThreadViewType_explain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Display users name or avatar for users Viewing Thread.]]></phrase>
+    <phrase title="permission_group_RainDD_UA_PermissionsMain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
+    <phrase title="permission_interface_raindd_ua_pigm" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
+    <phrase title="permission_RainDD_UA_PermissionsMain_RainDD_UA_ThreadReaders" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Can view users who have read a thread]]></phrase>
+    <phrase title="permission_RainDD_UA_PermissionsMain_RainDD_UA_ThreadViewers" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Can view users who are viewing thread]]></phrase>
+    <phrase title="RainDD_UA_Disabled" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Disabled]]></phrase>
+    <phrase title="RainDD_UA_DisplayAvatar" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Avatar]]></phrase>
+    <phrase title="RainDD_UA_DisplayName" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Username]]></phrase>
+    <phrase title="RainDD_UA_HideAlways" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Hide Always]]></phrase>
+    <phrase title="RainDD_UA_PositionAbovePageNav" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Above PageNav]]></phrase>
+    <phrase title="RainDD_UA_PositionAboveQR" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Above Quick Reply]]></phrase>
+    <phrase title="RainDD_UA_PositionBelowQR" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Below Quick Reply]]></phrase>
+    <phrase title="RainDD_UA_ShowAlways" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Show Always]]></phrase>
+    <phrase title="RainDD_UA_ShowCanBypass" version_id="1010033" version_string="1.1.0 Beta 3"><![CDATA[Show If Has "Bypass user privacy"]]></phrase>
+    <phrase title="RainDD_UA_Show_Less" version_id="1010400" version_string="1.1.4"><![CDATA[- Show Less]]></phrase>
+    <phrase title="RainDD_UA_Show_More" version_id="1010400" version_string="1.1.4"><![CDATA[+ Show All]]></phrase>
+    <phrase title="RainDD_UA_ThreadReaderTitle" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Users Who Have Read This Thread <span class="footnote">(Total: {total})</span>]]></phrase>
+    <phrase title="RainDD_UA_ThreadViewingTitle" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Users Who Are Viewing This Thread <span class="footnote">(Users: {users}, Guests: {guests})</span>]]></phrase>
+    <phrase title="style_property_group_raindd_ua_main_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity]]></phrase>
+    <phrase title="style_property_group_raindd_ua_main_master_desc" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[]]></phrase>
+    <phrase title="style_property_RainDD_UA_Avatar_description_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[]]></phrase>
+    <phrase title="style_property_RainDD_UA_Avatar_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Thread Avatar]]></phrase>
+    <phrase title="style_property_RainDD_UA_ThreadContainerH3Footnote_description_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Adjust font properties for user and guest counts.]]></phrase>
+    <phrase title="style_property_RainDD_UA_ThreadContainerH3Footnote_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Thread Container Counts]]></phrase>
+    <phrase title="style_property_RainDD_UA_ThreadContainerH3_description_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Adjust container title font and border.]]></phrase>
+    <phrase title="style_property_RainDD_UA_ThreadContainerH3_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Thread Container Title]]></phrase>
+    <phrase title="style_property_RainDD_UA_ThreadContainer_description_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Adjust container properties such as background, border, and default font size.]]></phrase>
+    <phrase title="style_property_RainDD_UA_ThreadContainer_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Thread Container]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties>
+    <property property_name="RainDD_UA_ThreadContainer" property_type="css" definition="1" group_name="raindd_ua_main" title="Thread Container" description="Adjust container properties such as background, border, and default font size." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="10" sub_group=""><![CDATA[[]]]></property>
+    <property property_name="RainDD_UA_Avatar" property_type="css" definition="1" group_name="raindd_ua_main" title="Thread Avatar" description="" css_components="layout" scalar_type="" scalar_parameters="" display_order="40" sub_group=""><![CDATA[[]]]></property>
+    <property property_name="RainDD_UA_ThreadContainerH3" property_type="css" definition="1" group_name="raindd_ua_main" title="Thread Container Title" description="Adjust container title font and border." css_components="text,border,layout,extra" scalar_type="" scalar_parameters="" display_order="20" sub_group=""><![CDATA[{"border-bottom-color":"@primaryLighterStill","border-bottom-style":"solid","border-bottom-width":"1px","color":"@primaryLight","font-size":"12pt","margin-bottom":"5px","padding-bottom":"2px"}]]></property>
+    <property property_name="RainDD_UA_ThreadContainerH3Footnote" property_type="css" definition="1" group_name="raindd_ua_main" title="Thread Container Counts" description="Adjust font properties for user and guest counts." css_components="text,layout,extra" scalar_type="" scalar_parameters="" display_order="30" sub_group=""><![CDATA[{"color":"@primaryLight","font-size":"12px","margin-top":"5px"}]]></property>
+    <group group_name="raindd_ua_main" display_order="20030">
+      <title>[RainDD] User Activity</title>
+      <description></description>
+    </group>
+  </style_properties>
+  <templates>
+    <template title="RainDD_UA_Thread.css" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[#uaThreadViewContainer,
+#uaThreadReadContainer 
+{
+	{xen:property RainDD_UA_ThreadContainer}
+}
+
+#uaThreadViewContainer h3,
+#uaThreadReadContainer h3
+{
+	{xen:property RainDD_UA_ThreadContainerH3}
+}
+
+#uaThreadViewContainer h3 .footnote,
+#uaThreadReadContainer h3 .footnote
+{
+	{xen:property RainDD_UA_ThreadContainerH3Footnote}
+}
+
+#uaThreadViewContainer .avatar img,
+#uaThreadReadContainer .avatar img
+{
+	{xen:property RainDD_UA_Avatar}
+}]]></template>
+    <template title="RainDD_UA_ThreadReadContainer" version_id="1010400" version_string="1.1.4"><![CDATA[<xen:if is="{$RainDD_UA_ThreadReaderPermission}">
+	<xen:if hascontent="true">
+	<xen:require css="RainDD_UA_Thread.css" />
+    <xen:if is="{$debugMode}">
+    <xen:require js="js/RainDD/expander.full.js" />
+    <xen:else/>
+    <xen:require js="js/RainDD/expander.js" />
+    </xen:if>
+    <div id="uaThreadReadContainer" class="section secondaryContent">
+        <h3>{xen:phrase RainDD_UA_ThreadReaderTitle, 'total={xen:number $RainDD_UA_ThreadReaderCount}'}</h3>
+		<xen:if is="{$xenOptions.RainDD_UA_ThreadReadType} == 0">
+        	<ol class="listInline commaImplode">
+		<xen:elseif is="{$xenOptions.RainDD_UA_ThreadReadType} == 1" />
+			<ol class="listInline">
+		</xen:if>
+			<div class="uaCollapseThreadRead">
+    				<div class="uaExpandThreadRead" data-threadreadlimit="{$xenOptions.RainDD_UA_ThreadReadLimit}" data-more="{xen:phrase RainDD_UA_Show_More}"  data-less="{xen:phrase RainDD_UA_Show_Less}">
+			<xen:contentcheck>
+			<xen:if is="{$xenOptions.RainDD_UA_ThreadReadType} == 0">
+			<xen:foreach loop="$RainDD_UA_ThreadUsersReading" value="$user">
+					<li><xen:username user="$user" rich="true" /></li>
+			</xen:foreach>
+			<xen:elseif is="{$xenOptions.RainDD_UA_ThreadReadType} == 1" />
+			<xen:foreach loop="$RainDD_UA_ThreadUsersReading" value="$user">
+					<li><xen:avatar user="$user" size="s" img="true" title="{$user.username}"/></li>
+			</xen:foreach>
+			</xen:if>
+			</xen:contentcheck>
+				</div>
+			</div>
+            
+        	</ol>
+    	</div>
+	</xen:if>
+</xen:if>		
+		]]></template>
+    <template title="RainDD_UA_ThreadViewContainer" version_id="1010400" version_string="1.1.4"><![CDATA[<xen:if is="{$RainDD_UA_ThreadViewerPermission}">
+	<xen:if hascontent="true">
+	<xen:require css="RainDD_UA_Thread.css" />    
+	<div id="uaThreadViewContainer" class="section secondaryContent">
+		<xen:if is="{$RainDD_UA_bypassUserPrivacy} == 0">
+		<h3>{xen:phrase RainDD_UA_ThreadViewingTitle, 'users={xen:number $RainDD_UA_ThreadUsersViewing.members}', 'guests={xen:number $RainDD_UA_Totals.guests}'}</h3>
+		<xen:elseif is="{$RainDD_UA_bypassUserPrivacy} == 1" />
+		<h3>{xen:phrase RainDD_UA_ThreadViewingTitle, 'users={xen:number $RainDD_UA_ThreadUsersViewing.members}', 'guests={xen:number $RainDD_UA_ThreadUsersViewing.guests}'}</h3>
+		</xen:if>
+		<xen:if is="{$xenOptions.RainDD_UA_ThreadViewType} == 0">
+			<ol class="listInline commaImplode">
+		<xen:elseif is="{$xenOptions.RainDD_UA_ThreadViewType} == 1" />
+			<ol class="listInline">
+		</xen:if>
+			<xen:contentcheck>
+			<xen:if is="{$xenOptions.RainDD_UA_ThreadViewType} == 0">
+			<xen:foreach loop="$RainDD_UA_ThreadUsersViewing.records" value="$user">
+				<li><xen:username user="$user" rich="true" /></li>
+			</xen:foreach>
+			<xen:elseif is="{$xenOptions.RainDD_UA_ThreadViewType} == 1" />
+			<xen:foreach loop="$RainDD_UA_ThreadUsersViewing.records" value="$user">
+				<li><xen:avatar user="$user" size="s" img="true" title="{$user.username}"/></li>
+			</xen:foreach>
+			</xen:if>
+			</xen:contentcheck>
+			</ol>
+		</div>
+	</xen:if>
+</xen:if>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="thread_view" modification_key="RainDD_TA_ContainersTop" description="Adds activity containers to the top of a thread." execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:hook name="thread_view_pagenav_before" params="{xen:array 'thread={$thread}'}" />]]></find>
+      <replace><![CDATA[$0
+<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
+	<xen:include template="RainDD_UA_ThreadViewContainer" />	
+</xen:if>
+<xen:if is="{$xenOptions.RainDD_UA_ThreadReadPos} == 1">
+	<xen:include template="RainDD_UA_ThreadReadContainer" />	
+</xen:if>]]></replace>
+    </modification>
+    <modification template="thread_view" modification_key="RainDD_TA_Containers_AfterQR" description="Adds activity containers to thread after quick reply." execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:hook name="thread_view_qr_after" params="{xen:array 'thread={$thread}'}" />]]></find>
+      <replace><![CDATA[$0
+<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 3">
+	<xen:include template="RainDD_UA_ThreadViewContainer" />	
+</xen:if>
+<xen:if is="{$xenOptions.RainDD_UA_ThreadReadPos} == 3">
+	<xen:include template="RainDD_UA_ThreadReadContainer" />	
+</xen:if>]]></replace>
+    </modification>
+    <modification template="thread_view" modification_key="RainDD_TA_Containers_BeforeQR" description="Adds activity containers to thread before quick reply." execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:hook name="thread_view_qr_before" params="{xen:array 'thread={$thread}'}" />]]></find>
+      <replace><![CDATA[$0
+<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 2">
+	<xen:include template="RainDD_UA_ThreadViewContainer" />	
+</xen:if>
+<xen:if is="{$xenOptions.RainDD_UA_ThreadReadPos} == 2">
+	<xen:include template="RainDD_UA_ThreadReadContainer" />	
+</xen:if>]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>

@@ -1,0 +1,19 @@
+UPGRADES
+
+1.0.x > 1.1.0
+Uninstall the Thread Activity plugin.  Extensive changes in preparation for future versions prevent the plugin from being upgraded.
+You may delete the files in /library/RainDD/ThreadActivity as they will no longer be used.
+You will need to redo usergroup permissions as they do not carry over from the original plugin.
+
+1.1.0 Beta 1 > 1.1.0
+Files were renamed since the first beta.  
+Like upgrading from 1.0.x you might wish to delete the files in /library/RainDD/UserActivity.  Be sure to disable the plugin until the new files are uploaded to prevent errors.  
+Install the XML as usual.  You may directly upgrade from the beta as normal.
+
+1.1.0 Beta 2/3/4 > 1.1.0
+Upload the latest files and install the XML as usual.
+Check your options settings as they may have changed.
+
+1.1.2 > 1.1.4
+Upload the latest files and install the XML as usual.
+Merge or Revert Templates.  MANY CHANGES BETWEEN THESE VERSIONS!
