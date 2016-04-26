@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="Basic User Activity" version_string="1.0.0 Alpha5" version_id="1000005" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="SV_UserActivity" title="Basic User Activity" version_string="1.0.0 Alpha6" version_id="1000006" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -133,7 +133,7 @@
 {
 	{xen:property RainDD_UA_Avatar}
 }]]></template>
-    <template title="RainDD_UA_ThreadViewContainer" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
+    <template title="RainDD_UA_ThreadViewContainer" version_id="1000006" version_string="1.0.0 Alpha6"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
 	<xen:if hascontent="true">
 	<xen:require css="RainDD_UA_Thread.css" />
 	<div id="uaThreadViewContainer" class="section secondaryContent">
@@ -146,11 +146,11 @@
 			<xen:contentcheck>
 			<xen:if is="{$xenOptions.RainDD_UA_ThreadViewType} == 0">
 			<xen:foreach loop="$UA_UsersViewing.records" value="$user">
-				<li><xen:username user="$user" rich="true" /></li>
+				<li><xen:username user="$user" rich="true" title="{xen:phrase x_was_last_seen, 'username={$user.username}'}: {xen:datetime $user.effective_last_activity}"/></li>
 			</xen:foreach>
 			<xen:elseif is="{$xenOptions.RainDD_UA_ThreadViewType} == 1" />
 			<xen:foreach loop="$UA_UsersViewing.records" value="$user">
-				<li><xen:avatar user="$user" size="s" img="true" title="{$user.username}"/></li>
+				<li><xen:avatar user="$user" size="s" img="true" title="{xen:phrase x_was_last_seen, 'username={$user.username}'}: {xen:datetime $user.effective_last_activity}"/></li>
 			</xen:foreach>
 			</xen:if>
 			</xen:contentcheck>
