@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="Basic User Activity" version_string="1.0.0 Alpha6" version_id="1000006" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="SV_UserActivity" title="Basic User Activity" version_string="1.0.0rc7" version_id="1000007" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -33,6 +33,12 @@
 1={xen:phrase RainDD_UA_DisplayAvatar}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="RainDD_UA_Options" display_order="120"/>
+    </option>
+    <option option_id="SV_UA_Cutoff" edit_format="spinbox" data_type="integer" can_backup="1">
+      <default_value>250</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="130"/>
     </option>
     <option option_id="SV_UA_TrackRobots" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
@@ -72,6 +78,9 @@
     <phrase title="option_RainDD_UA_ThreadViewPos_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Enable and choose where in the thread view the container for Viewing Thread will appear.]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewType" version_id="1000000" version_string="1.0.0"><![CDATA[Viewing Thread Display Type]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewType_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Display users name or avatar for users Viewing Thread.]]></phrase>
+    <phrase title="option_SV_UA_Cutoff" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[User cutoff]]></phrase>
+    <phrase title="option_SV_UA_Cutoff_explain" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[Maximum number of users to display before it is displays as "...and X others".<br/>
+0 to show all usernames always.]]></phrase>
     <phrase title="option_SV_UA_TrackRobots" version_id="1000000" version_string="1.0.0"><![CDATA[Track Robots]]></phrase>
     <phrase title="option_SV_UA_TrackRobots_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Show/Hid robots from user activity]]></phrase>
     <phrase title="option_UA_fillFactor" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[Fill Factor]]></phrase>
@@ -87,7 +96,6 @@
     <phrase title="RainDD_UA_PositionAbovePageNav" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Above PageNav]]></phrase>
     <phrase title="RainDD_UA_PositionAboveQR" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Above Quick Reply]]></phrase>
     <phrase title="RainDD_UA_PositionBelowQR" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Below Quick Reply]]></phrase>
-    <phrase title="UA_ViewingTitle" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[Users Who Are Viewing This {ContentType} <span class="footnote">(Users: {users}, Guests: {guests})</span>]]></phrase>
     <phrase title="style_property_group_raindd_ua_main_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity]]></phrase>
     <phrase title="style_property_group_raindd_ua_main_master_desc" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[]]></phrase>
     <phrase title="style_property_RainDD_UA_Avatar_description_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[]]></phrase>
@@ -98,6 +106,7 @@
     <phrase title="style_property_RainDD_UA_ThreadContainerH3_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Thread Container Title]]></phrase>
     <phrase title="style_property_RainDD_UA_ThreadContainer_description_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Adjust container properties such as background, border, and default font size.]]></phrase>
     <phrase title="style_property_RainDD_UA_ThreadContainer_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Thread Container]]></phrase>
+    <phrase title="UA_ViewingTitle" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[Users Who Are Viewing This {ContentType} <span class="footnote">(Users: {users}, Guests: {guests})</span>]]></phrase>
   </phrases>
   <route_prefixes/>
   <style_properties>
@@ -134,7 +143,7 @@
 {
 	{xen:property RainDD_UA_Avatar}
 }]]></template>
-    <template title="RainDD_UA_ThreadViewContainer" version_id="1000006" version_string="1.0.0 Alpha6"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
+    <template title="RainDD_UA_ThreadViewContainer" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
 	<xen:if hascontent="true">
 	<xen:require css="RainDD_UA_Thread.css" />
 	<div id="uaThreadViewContainer" class="section secondaryContent">
@@ -154,6 +163,9 @@
 				<li><xen:avatar user="$user" size="s" img="true" title="{xen:phrase x_was_last_seen, 'username={$user.username}'}: {xen:datetime $user.effective_last_activity}"/></li>
 			</xen:foreach>
 			</xen:if>
+			<xen:if is="{$UA_UsersViewing.recordsUnseen}">
+				<li class="moreLink">... {xen:phrase and_x_more, 'count={xen:number $UA_UsersViewing.recordsUnseen}'}</li>
+			</xen:if>
 			</xen:contentcheck>
 			</ol>
 		</div>
@@ -161,8 +173,8 @@
 </xen:if>]]></template>
   </templates>
   <public_template_modifications>
-    <modification template="thread_view" modification_key="thread_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
-      <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canQuickReply}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
+    <modification template="conversation_view" modification_key="conversation_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canReplyConversation}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>
@@ -175,8 +187,8 @@ $2
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>]]></replace>
     </modification>
-    <modification template="conversation_view" modification_key="conversation_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
-      <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canReplyConversation}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
+    <modification template="thread_view" modification_key="thread_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canQuickReply}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>
