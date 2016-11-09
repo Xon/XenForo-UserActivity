@@ -225,6 +225,8 @@ class SV_UserActivity_Model extends XenForo_Model
             'gravatar',
             'ip',
         );
+        $cutoff = $options->SV_UA_Cutoff;
+        $memberVisibleCount = 1;
 
         if(is_array($onlineRecords))
         {
@@ -247,6 +249,11 @@ class SV_UserActivity_Model extends XenForo_Model
                         $memberCount += 1;
                         if(!empty($rec['visible']) || $bypassUserPrivacy)
                         {
+                            $memberVisibleCount += 1;
+                            if ($cutoff > 0 && $memberVisibleCount > $cutoff)
+                            {
+                                continue;
+                            }
                             $score = $score - ($score % self::SAMPLE_INTERVAL);
                             $rec['effective_last_activity'] = $score;
                             $records[] = $rec;
@@ -270,6 +277,7 @@ class SV_UserActivity_Model extends XenForo_Model
             'guests'  => $guestCount,
             'robots'  => $robotCount,
             'records' => $records,
+            'recordsUnseen' => $cutoff > 0 ? $memberVisibleCount - count($records) : 0,
         );
     }
 
