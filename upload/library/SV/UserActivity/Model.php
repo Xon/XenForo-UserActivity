@@ -189,7 +189,7 @@ class SV_UserActivity_Model extends XenForo_Model
 
         $registry = $this->_getDataRegistryModel();
         $cache = $this->_getCache(true);
-        if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
+        if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache, true)))
         {
             // do not have a fallback
             return null;
@@ -208,6 +208,7 @@ class SV_UserActivity_Model extends XenForo_Model
             {
                 if ($credis->zcard($key) >= count($onlineRecords) * $options->UA_fillFactor)
                 {
+                    $credis = $registry->getCredis($cache, false);
                     $credis->zremrangebyscore($key, 0, $start - 1);
                 }
             }
