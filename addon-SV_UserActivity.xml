@@ -8,6 +8,7 @@
   <code_events/>
   <code_event_listeners>
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Thread" description="XenForo_ControllerPublic_Thread"/>
+    <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Post" description="XenForo_ControllerPublic_Post"/>
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Conversation" description="XenForo_ControllerPublic_Conversation"/>
     <listener event_id="load_class_model" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_Model_User" description="XenForo_Model_User"/>
   </code_event_listeners>
@@ -121,7 +122,7 @@
   </style_properties>
   <templates>
     <template title="RainDD_UA_Thread.css" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[#uaThreadViewContainer,
-#uaThreadReadContainer 
+#uaThreadReadContainer
 {
 	{xen:property RainDD_UA_ThreadContainer}
 }
@@ -147,7 +148,7 @@
 	<xen:if hascontent="true">
 	<xen:require css="RainDD_UA_Thread.css" />
 	<div id="uaThreadViewContainer" class="section secondaryContent">
-		<h3>{xen:phrase UA_ViewingTitle, 'ContentType={$UA_ContentType}', 'users={xen:number $UA_UsersViewing.members}', 'guests={xen:number $UA_UsersViewing.guests}'}</h3>	
+		<h3>{xen:phrase UA_ViewingTitle, 'ContentType={$UA_ContentType}', 'users={xen:number $UA_UsersViewing.members}', 'guests={xen:number $UA_UsersViewing.guests}'}</h3>
 		<xen:if is="{$xenOptions.RainDD_UA_ThreadViewType} == 0">
 			<ol class="listInline commaImplode">
 		<xen:elseif is="{$xenOptions.RainDD_UA_ThreadViewType} == 1" />
