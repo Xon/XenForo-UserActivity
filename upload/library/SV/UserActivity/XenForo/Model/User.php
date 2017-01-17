@@ -17,11 +17,12 @@ class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Mo
                 {
                     self::$SV_UA_TrackRobots = XenForo_Application::getOptions()->SV_UA_TrackRobots;
                 }
-                if (!self::$SV_UA_TrackRobots || $robotKey)
+                if (self::$SV_UA_TrackRobots || empty($robotKey))
                 {
-                    $user = XenForo_Visitor::getInstance()->toArray();
-                    if($userId == $user['user_id'])
+                    $visitor = XenForo_Visitor::getInstance();
+                    if($userId == $visitor['user_id'])
                     {
+                        $user = $visitor->toArray();
                         $contentType = $handler[0];
                         $userActivityModel->updateSessionActivity($contentType, $inputParams[$requiredKey], $ip, $robotKey, $user);
                     }
