@@ -59,7 +59,7 @@ class SV_UserActivity_Model extends XenForo_Model
         }
     }
 
-    public function GarbageCollectActivity($targetRunTime = null)
+    public function GarbageCollectActivity(array $data, $targetRunTime = null)
     {
         $registry = $this->_getDataRegistryModel();
         $cache = $this->_getCache(true);
@@ -72,30 +72,32 @@ class SV_UserActivity_Model extends XenForo_Model
         $options = XenForo_Application::getOptions();
         $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
         // we need to manually expire records out of the per content hash set if they are kept alive with activity
-        $gckey = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activityGC";
         $datakey = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.";
 
         $end = XenForo_Application::$time - $onlineStatusTimeout;
         $end = $end - ($end  % self::SAMPLE_INTERVAL);
 
-        $keys = array();
+        // indicate to the redis instance would like to process X items at a time.
+        $count = 100;
+        // prevent looping forever
         $loopGuard = 10000;
+        // find indexes matching the pattern
+        $cursor = empty($data['cursor']) ? null : $data['cursor'];
         $s = microtime(true);
-        while($loopGuard > 0)
+        do
         {
-            // randomly grab a key to inspect
-            $contentKeyPart = $credis->spop($gckey);
-            if (empty($contentKeyPart))
+            $keys = $credis->scan($cursor, $datakey ."*", $count);
+            $loopGuard--;
+            if ($keys === false)
             {
                 break;
             }
+            $data['cursor'] = $cursor;
+
             // the actual prune operation
-            $fullkey = $datakey.$contentKeyPart;
-            $credis->zremrangebyscore($fullkey, 0, $end);
-            // don't matter about a race condition, as they will have added it back into the set
-            if ($credis->zcard($fullkey))
+            foreach($keys as $key)
             {
-                $keys[] = $contentKeyPart;
+                $credis->zremrangebyscore($key, 0, $end);
             }
 
             $runTime = microtime(true) - $s;
@@ -105,13 +107,13 @@ class SV_UserActivity_Model extends XenForo_Model
             }
             $loopGuard--;
         }
+        while($loopGuard > 0 && !empty($cursor));
 
-        // add the keys back in after we have finished inspecting to prevent hitting the same keys we have hit before.
-        if ($keys)
+        if (empty($cursor))
         {
-            $result = $credis->sadd($gckey, $keys);
-            $credis->expire($gckey, $onlineStatusTimeout);
+            return false;
         }
+        return $data;
     }
 
     public function updateSessionActivity($contentType, $contentId, $ip, $robotKey, array $viewingUser = null)
@@ -170,11 +172,6 @@ class SV_UserActivity_Model extends XenForo_Model
         // record keeping
         $key = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
         $result = $credis->zadd($key, $score, $raw);
-        $credis->expire($key, $options->onlineStatusTimeout * 60);
-
-        // we need to manually expire records out of the per content hash set if they are kept alive with activity
-        $key = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activityGC";
-        $result = $credis->sadd($key, "{$contentType}.{$contentId}");
         $credis->expire($key, $options->onlineStatusTimeout * 60);
     }
 
