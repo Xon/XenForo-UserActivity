@@ -198,7 +198,7 @@ class SV_UserActivity_Model extends XenForo_Model
         }
         else
         {
-            $credis->pipeline();
+            $credis->pipeline()->multi();
             // O(log(N)) for each item added, where N is the number of elements in the sorted set.
             $credis->zadd($key, $score, $raw);
             $credis->expire($key, $onlineStatusTimeout);
