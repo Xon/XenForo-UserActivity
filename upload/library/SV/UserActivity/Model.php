@@ -116,6 +116,8 @@ class SV_UserActivity_Model extends XenForo_Model
         return $data;
     }
 
+    const LUA_IFZADDEXPIRE_SH1 = 'dc1d76eefaca2f4ccf848a6ed7e80def200ac7b7';
+
     public function updateSessionActivity($contentType, $contentId, $ip, $robotKey, array $viewingUser = null)
     {
         $this->standardizeViewingUserReference($viewingUser);
@@ -165,14 +167,40 @@ class SV_UserActivity_Model extends XenForo_Model
             // do not have a fallback
             return;
         }
+        $useLua = method_exists($registry, 'useLua') && $registry->useLua($cache);
 
         // encode the data
         $raw = implode("\n", $data);
 
         // record keeping
         $key = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
-        $result = $credis->zadd($key, $score, $raw);
-        $credis->expire($key, $options->onlineStatusTimeout * 60);
+
+
+        if ($useLua)
+        {
+            $ret = $credis->evalSha(self::LUA_IFZADDEXPIRE_SH1, array($key), array($score, $raw, $options->onlineStatusTimeout * 60));
+            if ($ret === null)
+            {
+                $script =
+                    "local c = tonumber(redis.call('zscore', KEYS[1], ARGV[2])) ".
+                    "local n = tonumber(ARGV[1]) ".
+                    "local retVal = 0 ".
+                    "if c == nil or n > c then ".
+                      "retVal = redis.call('ZADD', KEYS[1], n, ARGV[2]) ".
+                    "end ".
+                    "redis.call('EXPIRE', KEYS[1], ARGV[3]) ".
+                    "return retVal ";
+                $credis->eval($script, array($key), array($score, $raw, $options->onlineStatusTimeout * 60));
+            }
+        }
+        else
+        {
+            $credis->pipeline();
+            // O(log(N)) for each item added, where N is the number of elements in the sorted set.
+            $credis->zadd($key, $score, $raw);
+            $credis->expire($key, $options->onlineStatusTimeout * 60);
+            $credis->exec();
+        }
     }
 
     public function getUsersViewing($contentType, $contentId, array $viewingUser = null)
@@ -203,9 +231,10 @@ class SV_UserActivity_Model extends XenForo_Model
             // check if the activity counter needs pruning
             if (mt_rand() < $options->UA_pruneChance)
             {
+                $credis = $registry->getCredis($cache, false);
                 if ($credis->zcard($key) >= count($onlineRecords) * $options->UA_fillFactor)
                 {
-                    $credis = $registry->getCredis($cache, false);
+                    // O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
                     $credis->zremrangebyscore($key, 0, $start - 1);
                 }
             }
