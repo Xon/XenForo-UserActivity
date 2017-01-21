@@ -2,10 +2,13 @@
 
 class SV_UserActivity_Model extends XenForo_Model
 {
-    const SAMPLE_INTERVAL = 30;
-
     protected static $handlers = array();
     protected static $logging = true;
+
+    public function getSampleInterval()
+    {
+        return 30;
+    }
 
     public function supresssLogging()
     {
@@ -75,7 +78,7 @@ class SV_UserActivity_Model extends XenForo_Model
         $datakey = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.";
 
         $end = XenForo_Application::$time - $onlineStatusTimeout;
-        $end = $end - ($end  % self::SAMPLE_INTERVAL);
+        $end = $end - ($end  % $this->getSampleInterval());
 
         // indicate to the redis instance would like to process X items at a time.
         $count = 100;
@@ -122,7 +125,7 @@ class SV_UserActivity_Model extends XenForo_Model
     {
         $this->standardizeViewingUserReference($viewingUser);
 
-        $score = XenForo_Application::$time - ( XenForo_Application::$time  % self::SAMPLE_INTERVAL);
+        $score = XenForo_Application::$time - ( XenForo_Application::$time  % $this->getSampleInterval());
         $data = array
         (
             'user_id' => $viewingUser['user_id'],
@@ -174,11 +177,11 @@ class SV_UserActivity_Model extends XenForo_Model
 
         // record keeping
         $key = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
-
+        $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
 
         if ($useLua)
         {
-            $ret = $credis->evalSha(self::LUA_IFZADDEXPIRE_SH1, array($key), array($score, $raw, $options->onlineStatusTimeout * 60));
+            $ret = $credis->evalSha(self::LUA_IFZADDEXPIRE_SH1, array($key), array($score, $raw, $onlineStatusTimeout));
             if ($ret === null)
             {
                 $script =
@@ -190,7 +193,7 @@ class SV_UserActivity_Model extends XenForo_Model
                     "end ".
                     "redis.call('EXPIRE', KEYS[1], ARGV[3]) ".
                     "return retVal ";
-                $credis->eval($script, array($key), array($score, $raw, $options->onlineStatusTimeout * 60));
+                $credis->eval($script, array($key), array($score, $raw, $onlineStatusTimeout));
             }
         }
         else
@@ -198,7 +201,7 @@ class SV_UserActivity_Model extends XenForo_Model
             $credis->pipeline();
             // O(log(N)) for each item added, where N is the number of elements in the sorted set.
             $credis->zadd($key, $score, $raw);
-            $credis->expire($key, $options->onlineStatusTimeout * 60);
+            $credis->expire($key, $onlineStatusTimeout);
             $credis->exec();
         }
     }
@@ -225,7 +228,7 @@ class SV_UserActivity_Model extends XenForo_Model
 
             $options = XenForo_Application::getOptions();
             $start = XenForo_Application::$time  - $options->onlineStatusTimeout * 60;
-            $start = $start - ($start  % self::SAMPLE_INTERVAL);
+            $start = $start - ($start  % $this->getSampleInterval());
             $end = XenForo_Application::$time + 1;
             $onlineRecords = $credis->zrevrangebyscore($key, $end, $start, array('withscores' => true));
             // check if the activity counter needs pruning
@@ -259,6 +262,7 @@ class SV_UserActivity_Model extends XenForo_Model
         {
             $seen = array($viewingUser['user_id'] => true);
             $bypassUserPrivacy = $this->_getUserModel()->canBypassUserPrivacy($null, $viewingUser);
+            $sampleInterval = $this->getSampleInterval();
 
             foreach($onlineRecords as $rec => $score)
             {
@@ -281,7 +285,7 @@ class SV_UserActivity_Model extends XenForo_Model
                             {
                                 continue;
                             }
-                            $score = $score - ($score % self::SAMPLE_INTERVAL);
+                            $score = $score - ($score % $sampleInterval);
                             $rec['effective_last_activity'] = $score;
                             $records[] = $rec;
                         }
