@@ -206,6 +206,19 @@ class SV_UserActivity_Model extends XenForo_Model
         }
     }
 
+    const CacheKeys = array
+    (
+        'user_id',
+        'username',
+        'visible',
+        'robot',
+        'display_style_group_id',
+        'gender',
+        'avatar_date',
+        'gravatar',
+        'ip',
+    );
+
     public function getUsersViewing($contentType, $contentId, array $viewingUser = null)
     {
         $this->standardizeViewingUserReference($viewingUser);
@@ -243,18 +256,6 @@ class SV_UserActivity_Model extends XenForo_Model
             }
         }
 
-        $keys = array
-        (
-            'user_id',
-            'username',
-            'visible',
-            'robot',
-            'display_style_group_id',
-            'gender',
-            'avatar_date',
-            'gravatar',
-            'ip',
-        );
         $cutoff = $options->SV_UA_Cutoff;
         $memberVisibleCount = 1;
 
@@ -267,7 +268,7 @@ class SV_UserActivity_Model extends XenForo_Model
             foreach($onlineRecords as $rec => $score)
             {
                 $data = explode("\n", $rec);
-                $rec = @array_combine($keys, $data);
+                $rec = @array_combine(self::CacheKeys, $data);
                 if (empty($rec))
                 {
                     continue;
