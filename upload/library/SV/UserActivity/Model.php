@@ -245,7 +245,7 @@ class SV_UserActivity_Model extends XenForo_Model
             $end = XenForo_Application::$time + 1;
             $onlineRecords = $credis->zrevrangebyscore($key, $end, $start, array('withscores' => true));
             // check if the activity counter needs pruning
-            if (mt_rand() < $options->UA_pruneChance)
+            if ($options->UA_pruneChance > 0 && mt_rand() < $options->UA_pruneChance)
             {
                 $credis = $registry->getCredis($cache, false);
                 if ($credis->zcard($key) >= count($onlineRecords) * $options->UA_fillFactor)
