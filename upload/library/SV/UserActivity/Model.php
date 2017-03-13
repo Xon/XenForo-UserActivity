@@ -155,7 +155,7 @@ class SV_UserActivity_Model extends XenForo_Model
             else
             {
                 // unknown display type
-                return;
+                return null;
             }
         }
         else
@@ -168,7 +168,7 @@ class SV_UserActivity_Model extends XenForo_Model
         if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
         {
             // do not have a fallback
-            return;
+            return null;
         }
         $useLua = method_exists($registry, 'useLua') && $registry->useLua($cache);
 
@@ -204,6 +204,8 @@ class SV_UserActivity_Model extends XenForo_Model
             $credis->expire($key, $onlineStatusTimeout);
             $credis->exec();
         }
+
+        return $data;
     }
 
     const CacheKeys = array
