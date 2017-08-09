@@ -1,14 +1,14 @@
 <?php
 
+include_once('SV/UserActivity/ActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Post extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Post
 {
-    const CONTROLLER_NAME = 'XenForo_ControllerPublic_Post';
-
-    protected function _preDispatch($action)
-    {
-        $this->getModelFromCache('SV_UserActivity_Model')->registerHandler(self::CONTROLLER_NAME, 'thread', 'thread_id');
-        return parent::_preDispatch($action);
-    }
+    protected $activityInjector = [
+        'controller' => 'XenForo_ControllerPublic_Post',
+        'type' => 'thread',
+        'id' => 'thread_id',
+    ];
+    use ActivityInjector;
 
     public function canUpdateSessionActivity($controllerName, $action, &$newState)
     {
