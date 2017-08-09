@@ -1,5 +1,7 @@
 # XenForo-UserActivity
 
+Requires php 5.4
+
 Displays user activity below content.
 
 Supported content:
