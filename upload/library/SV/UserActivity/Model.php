@@ -45,7 +45,7 @@ class SV_UserActivity_Model extends XenForo_Model
     }
 
     /**
-     * @param string $controllerName
+     * @param string                                   $controllerName
      * @param XenForo_ControllerResponse_Abstract|null $response
      */
     public function insertUserActivityIntoViewResponse($controllerName, &$response)
@@ -76,8 +76,27 @@ class SV_UserActivity_Model extends XenForo_Model
     }
 
     /**
-     * @param array $data
-     * @param integer|null  $targetRunTime
+     * @param array        $data
+     * @param integer|null $targetRunTime
+     * @return array|bool
+     * @throws Zend_Cache_Exception
+     */
+    protected function _garbageCollectActivityFallback(array $data, $targetRunTime = null)
+    {
+        $options = XenForo_Application::getOptions();
+        $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
+        $end = XenForo_Application::$time - $onlineStatusTimeout;
+        $end = $end - ($end % $this->getSampleInterval());
+
+        $db = $this->_getDb();
+        $db->query('DELETE FROM `xf_sv_user_activity` WHERE `timestamp` < ?', $end);
+
+        return false;
+    }
+
+    /**
+     * @param array        $data
+     * @param integer|null $targetRunTime
      * @return array|bool
      * @throws Zend_Cache_Exception
      */
@@ -87,8 +106,7 @@ class SV_UserActivity_Model extends XenForo_Model
         $cache = $this->_getCache(true);
         if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
         {
-            // do not have a fallback
-            return false;
+            return $this->_garbageCollectActivityFallback($data, $targetRunTime);
         }
 
         /** @var Credis_Client $credis */
@@ -143,6 +161,29 @@ class SV_UserActivity_Model extends XenForo_Model
     const LUA_IFZADDEXPIRE_SH1 = 'dc1d76eefaca2f4ccf848a6ed7e80def200ac7b7';
 
     /**
+     * @param string  $contentType
+     * @param integer $contentId
+     * @param integer $time
+     * @param array   $data
+     * @param string  $raw
+     * @return array
+     */
+    protected function _updateSessionActivityFallback($contentType, $contentId, $time, array $data, $raw)
+    {
+        $db = $this->_getDb();
+        $db->query(
+            '
+            INSERT INTO xf_sv_user_activity 
+            (content_type, content_id, `timestamp`, `blob`) 
+            VALUES 
+            (?,?,?,?)',
+            [$contentType, $contentId, $time, $raw]
+        );
+
+        return $data;
+    }
+
+    /**
      * @param string     $contentType
      * @param integer    $contentId
      * @param string     $ip
@@ -192,18 +233,18 @@ class SV_UserActivity_Model extends XenForo_Model
             $data['ip'] = $ip;
         }
 
+        // encode the data
+        $raw = implode("\n", $data);
+
         $registry = $this->_getDataRegistryModel();
         $cache = $this->_getCache(true);
         if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
         {
             // do not have a fallback
-            return null;
+            return $this->_updateSessionActivityFallback($contentType, $contentId, $score, $data, $raw);
         }
         /** @var Credis_Client $credis */
         $useLua = method_exists($registry, 'useLua') && $registry->useLua($cache);
-
-        // encode the data
-        $raw = implode("\n", $data);
 
         // record keeping
         $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
@@ -250,6 +291,29 @@ class SV_UserActivity_Model extends XenForo_Model
         'ip',
     ];
 
+    /**
+     * @param string  $contentType
+     * @param integer $contentId
+     * @param integer $start
+     * @param integer $end
+     * @return array
+     */
+    protected function _getUsersViewingFallback($contentType, $contentId, $start, $end)
+    {
+        $db = $this->_getDb();
+        $raw = $db->fetchAll(
+            'SELECT * FROM xf_sv_user_activity WHERE content_type = ? AND content_id = ? AND `timestamp` >= ? AND `timestamp` <= ?',
+            [$contentType, $contentId, $start, $end]
+        );
+        $records = [];
+        foreach ($raw as $row)
+        {
+            $records[$row] = $row['timestamp'];
+        }
+
+        return $records;
+    }
+
     public function getUsersViewing($contentType, $contentId, array $viewingUser = null)
     {
         $this->standardizeViewingUserReference($viewingUser);
@@ -259,22 +323,27 @@ class SV_UserActivity_Model extends XenForo_Model
         $robotCount = 0;
         $records = [$viewingUser];
 
+        $options = XenForo_Application::getOptions();
+        $start = XenForo_Application::$time - $options->onlineStatusTimeout * 60;
+        $start = $start - ($start % $this->getSampleInterval());
+        $end = XenForo_Application::$time + 1;
+
         $registry = $this->_getDataRegistryModel();
         $cache = $this->_getCache(true);
         if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache, true)))
         {
             // do not have a fallback
-            return null;
+            $onlineRecords = $this->_getUsersViewingFallback($contentType, $contentId, $start, $end);
+            // check if the activity counter needs pruning
+            if ($options->UA_pruneChance > 0 && mt_rand() < $options->UA_pruneChance)
+            {
+                $this->_garbageCollectActivityFallback([]);
+            }
         }
         else
         {
             /** @var Credis_Client $credis */
             $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
-
-            $options = XenForo_Application::getOptions();
-            $start = XenForo_Application::$time - $options->onlineStatusTimeout * 60;
-            $start = $start - ($start % $this->getSampleInterval());
-            $end = XenForo_Application::$time + 1;
             $onlineRecords = $credis->zrevrangebyscore($key, $end, $start, ['withscores' => true]);
             // check if the activity counter needs pruning
             if ($options->UA_pruneChance > 0 && mt_rand() < $options->UA_pruneChance)
