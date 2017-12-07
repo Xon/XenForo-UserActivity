@@ -5,9 +5,9 @@ class SV_UserActivity_NixFifty_Tickets_ControllerPublic_Ticket extends XFCP_SV_U
 {
     protected $activityInjector = [
         'controller' => 'NixFifty_Tickets_ControllerPublic_Ticket',
-        'type' => 'ticket',
-        'id' => 'ticket_id',
-        'actions' => ['view'],
+        'type'       => 'ticket',
+        'id'         => 'ticket_id',
+        'actions'    => ['view'],
     ];
     use ActivityInjector;
 }

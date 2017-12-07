@@ -5,15 +5,15 @@ class SV_UserActivity_XenForo_ControllerPublic_Post extends XFCP_SV_UserActivity
 {
     protected $activityInjector = [
         'controller' => 'XenForo_ControllerPublic_Post',
-        'type' => 'thread',
-        'id' => 'thread_id',
+        'type'       => 'thread',
+        'id'         => 'thread_id',
     ];
     use ActivityInjector;
 
     public function canUpdateSessionActivity($controllerName, $action, &$newState)
     {
         $actionL = strtolower($action);
-        switch($actionL)
+        switch ($actionL)
         {
             case 'like':
             case 'rate':

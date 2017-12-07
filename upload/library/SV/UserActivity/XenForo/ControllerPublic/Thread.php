@@ -5,9 +5,9 @@ class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivi
 {
     protected $activityInjector = [
         'controller' => 'XenForo_ControllerPublic_Thread',
-        'type' => 'thread',
-        'id' => 'thread_id',
-        'actions' => ['index'],
+        'type'       => 'thread',
+        'id'         => 'thread_id',
+        'actions'    => ['index'],
     ];
     use ActivityInjector;
 }

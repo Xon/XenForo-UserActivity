@@ -1,0 +1,8 @@
+<?php
+
+class XFCP_SV_UserActivity_XenForo_Model_User extends XenForo_Model_User {}
+class XFCP_SV_UserActivity_XenForo_ControllerPublic_Conversation extends XenForo_ControllerPublic_Conversation {}
+class XFCP_SV_UserActivity_XenForo_ControllerPublic_Post extends XenForo_ControllerPublic_Post {}
+class XFCP_SV_UserActivity_XenForo_ControllerPublic_Report extends XenForo_ControllerPublic_Report {}
+class XFCP_SV_UserActivity_XenForo_ControllerPublic_Thread extends XenForo_ControllerPublic_Thread {}
+class XFCP_SV_UserActivity_NixFifty_Tickets_ControllerPublic_Ticket extends NixFifty_Tickets_ControllerPublic_Ticket {}

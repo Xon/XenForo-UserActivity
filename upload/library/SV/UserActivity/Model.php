@@ -2,8 +2,8 @@
 
 class SV_UserActivity_Model extends XenForo_Model
 {
-    protected static $handlers = array();
-    protected static $logging = true;
+    protected static $handlers = [];
+    protected static $logging  = true;
 
     public function getSampleInterval()
     {
@@ -20,21 +20,34 @@ class SV_UserActivity_Model extends XenForo_Model
         return self::$logging;
     }
 
-
+    /**
+     * @param string $controllerName
+     * @param string $contentType
+     * @param string $contentIdField
+     */
     public function registerHandler($controllerName, $contentType, $contentIdField)
     {
-        self::$handlers[$controllerName] = array($contentType, $contentIdField);
+        self::$handlers[$controllerName] = [$contentType, $contentIdField];
     }
 
+    /**
+     * @param string $controllerName
+     * @return bool|array
+     */
     public function getHandler($controllerName)
     {
         if (empty(self::$handlers[$controllerName]))
         {
             return false;
         }
+
         return self::$handlers[$controllerName];
     }
 
+    /**
+     * @param string $controllerName
+     * @param XenForo_ControllerResponse_Abstract|null $response
+     */
     public function insertUserActivityIntoViewResponse($controllerName, &$response)
     {
         if ($response instanceof XenForo_ControllerResponse_View)
@@ -62,6 +75,12 @@ class SV_UserActivity_Model extends XenForo_Model
         }
     }
 
+    /**
+     * @param array $data
+     * @param integer|null  $targetRunTime
+     * @return array|bool
+     * @throws Zend_Cache_Exception
+     */
     public function GarbageCollectActivity(array $data, $targetRunTime = null)
     {
         $registry = $this->_getDataRegistryModel();
@@ -69,16 +88,17 @@ class SV_UserActivity_Model extends XenForo_Model
         if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
         {
             // do not have a fallback
-            return;
+            return false;
         }
 
+        /** @var Credis_Client $credis */
         $options = XenForo_Application::getOptions();
         $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
         // we need to manually expire records out of the per content hash set if they are kept alive with activity
-        $datakey = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.";
+        $datakey = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.";
 
         $end = XenForo_Application::$time - $onlineStatusTimeout;
-        $end = $end - ($end  % $this->getSampleInterval());
+        $end = $end - ($end % $this->getSampleInterval());
 
         // indicate to the redis instance would like to process X items at a time.
         $count = 100;
@@ -89,7 +109,7 @@ class SV_UserActivity_Model extends XenForo_Model
         $s = microtime(true);
         do
         {
-            $keys = $credis->scan($cursor, $datakey ."*", $count);
+            $keys = $credis->scan($cursor, $datakey . "*", $count);
             $loopGuard--;
             if ($keys === false)
             {
@@ -98,7 +118,7 @@ class SV_UserActivity_Model extends XenForo_Model
             $data['cursor'] = $cursor;
 
             // the actual prune operation
-            foreach($keys as $key)
+            foreach ($keys as $key)
             {
                 $credis->zremrangebyscore($key, 0, $end);
             }
@@ -110,34 +130,43 @@ class SV_UserActivity_Model extends XenForo_Model
             }
             $loopGuard--;
         }
-        while($loopGuard > 0 && !empty($cursor));
+        while ($loopGuard > 0 && !empty($cursor));
 
         if (empty($cursor))
         {
             return false;
         }
+
         return $data;
     }
 
     const LUA_IFZADDEXPIRE_SH1 = 'dc1d76eefaca2f4ccf848a6ed7e80def200ac7b7';
 
+    /**
+     * @param string     $contentType
+     * @param integer    $contentId
+     * @param string     $ip
+     * @param string     $robotKey
+     * @param array|null $viewingUser
+     * @return array|null
+     * @throws Zend_Cache_Exception
+     */
     public function updateSessionActivity($contentType, $contentId, $ip, $robotKey, array $viewingUser = null)
     {
         $this->standardizeViewingUserReference($viewingUser);
 
-        $score = XenForo_Application::$time - ( XenForo_Application::$time  % $this->getSampleInterval());
-        $data = array
-        (
-            'user_id' => $viewingUser['user_id'],
-            'username' => $viewingUser['username'],
-            'visible' => $viewingUser['visible'] && $viewingUser['activity_visible'] ? 1 : null,
-            'robot'  => empty($robotKey) ? null : 1,
+        $score = XenForo_Application::$time - (XenForo_Application::$time % $this->getSampleInterval());
+        $data = [
+            'user_id'                => $viewingUser['user_id'],
+            'username'               => $viewingUser['username'],
+            'visible'                => $viewingUser['visible'] && $viewingUser['activity_visible'] ? 1 : null,
+            'robot'                  => empty($robotKey) ? null : 1,
             'display_style_group_id' => null,
-            'gender' => null,
-            'avatar_date' => null,
-            'gravatar' => null,
-            'ip' => null,
-        );
+            'gender'                 => null,
+            'avatar_date'            => null,
+            'gravatar'               => null,
+            'ip'                     => null,
+        ];
 
         $options = XenForo_Application::getOptions();
         if ($viewingUser['user_id'])
@@ -170,30 +199,31 @@ class SV_UserActivity_Model extends XenForo_Model
             // do not have a fallback
             return null;
         }
+        /** @var Credis_Client $credis */
         $useLua = method_exists($registry, 'useLua') && $registry->useLua($cache);
 
         // encode the data
         $raw = implode("\n", $data);
 
         // record keeping
-        $key = Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
+        $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
         $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
 
         if ($useLua)
         {
-            $ret = $credis->evalSha(self::LUA_IFZADDEXPIRE_SH1, array($key), array($score, $raw, $onlineStatusTimeout));
+            $ret = $credis->evalSha(self::LUA_IFZADDEXPIRE_SH1, [$key], [$score, $raw, $onlineStatusTimeout]);
             if ($ret === null)
             {
                 $script =
-                    "local c = tonumber(redis.call('zscore', KEYS[1], ARGV[2])) ".
-                    "local n = tonumber(ARGV[1]) ".
-                    "local retVal = 0 ".
-                    "if c == nil or n > c then ".
-                      "retVal = redis.call('ZADD', KEYS[1], n, ARGV[2]) ".
-                    "end ".
-                    "redis.call('EXPIRE', KEYS[1], ARGV[3]) ".
+                    "local c = tonumber(redis.call('zscore', KEYS[1], ARGV[2])) " .
+                    "local n = tonumber(ARGV[1]) " .
+                    "local retVal = 0 " .
+                    "if c == nil or n > c then " .
+                    "retVal = redis.call('ZADD', KEYS[1], n, ARGV[2]) " .
+                    "end " .
+                    "redis.call('EXPIRE', KEYS[1], ARGV[3]) " .
                     "return retVal ";
-                $credis->eval($script, array($key), array($score, $raw, $onlineStatusTimeout));
+                $credis->eval($script, [$key], [$score, $raw, $onlineStatusTimeout]);
             }
         }
         else
@@ -208,8 +238,7 @@ class SV_UserActivity_Model extends XenForo_Model
         return $data;
     }
 
-    const CacheKeys = array
-    (
+    const CacheKeys = [
         'user_id',
         'username',
         'visible',
@@ -219,7 +248,7 @@ class SV_UserActivity_Model extends XenForo_Model
         'avatar_date',
         'gravatar',
         'ip',
-    );
+    ];
 
     public function getUsersViewing($contentType, $contentId, array $viewingUser = null)
     {
@@ -228,7 +257,7 @@ class SV_UserActivity_Model extends XenForo_Model
         $memberCount = 1;
         $guestCount = 0;
         $robotCount = 0;
-        $records = array($viewingUser);
+        $records = [$viewingUser];
 
         $registry = $this->_getDataRegistryModel();
         $cache = $this->_getCache(true);
@@ -239,13 +268,14 @@ class SV_UserActivity_Model extends XenForo_Model
         }
         else
         {
-            $key =  Cm_Cache_Backend_Redis::PREFIX_KEY. $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
+            /** @var Credis_Client $credis */
+            $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
 
             $options = XenForo_Application::getOptions();
-            $start = XenForo_Application::$time  - $options->onlineStatusTimeout * 60;
-            $start = $start - ($start  % $this->getSampleInterval());
+            $start = XenForo_Application::$time - $options->onlineStatusTimeout * 60;
+            $start = $start - ($start % $this->getSampleInterval());
             $end = XenForo_Application::$time + 1;
-            $onlineRecords = $credis->zrevrangebyscore($key, $end, $start, array('withscores' => true));
+            $onlineRecords = $credis->zrevrangebyscore($key, $end, $start, ['withscores' => true]);
             // check if the activity counter needs pruning
             if ($options->UA_pruneChance > 0 && mt_rand() < $options->UA_pruneChance)
             {
@@ -261,13 +291,13 @@ class SV_UserActivity_Model extends XenForo_Model
         $cutoff = $options->SV_UA_Cutoff;
         $memberVisibleCount = 1;
 
-        if(is_array($onlineRecords))
+        if (is_array($onlineRecords))
         {
-            $seen = array($viewingUser['user_id'] => true);
+            $seen = [$viewingUser['user_id'] => true];
             $bypassUserPrivacy = $this->_getUserModel()->canBypassUserPrivacy($null, $viewingUser);
             $sampleInterval = $this->getSampleInterval();
 
-            foreach($onlineRecords as $rec => $score)
+            foreach ($onlineRecords as $rec => $score)
             {
                 $data = explode("\n", $rec);
                 $rec = @array_combine(self::CacheKeys, $data);
@@ -281,7 +311,7 @@ class SV_UserActivity_Model extends XenForo_Model
                     {
                         $seen[$rec['user_id']] = true;
                         $memberCount += 1;
-                        if(!empty($rec['visible']) || $bypassUserPrivacy)
+                        if (!empty($rec['visible']) || $bypassUserPrivacy)
                         {
                             $memberVisibleCount += 1;
                             if ($cutoff > 0 && $memberVisibleCount > $cutoff)
@@ -305,16 +335,18 @@ class SV_UserActivity_Model extends XenForo_Model
             }
         }
 
-        return array
-        (
-            'members' => $memberCount,
-            'guests'  => $guestCount,
-            'robots'  => $robotCount,
-            'records' => $records,
+        return [
+            'members'       => $memberCount,
+            'guests'        => $guestCount,
+            'robots'        => $robotCount,
+            'records'       => $records,
             'recordsUnseen' => $cutoff > 0 ? $memberVisibleCount - count($records) : 0,
-        );
+        ];
     }
 
+    /**
+     * @return XenForo_Model|XenForo_Model_User|SV_UserActivity_XenForo_Model_User
+     */
     protected function _getUserModel()
     {
         return $this->getModelFromCache('XenForo_Model_User');
