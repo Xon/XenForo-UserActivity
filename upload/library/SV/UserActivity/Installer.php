@@ -17,9 +17,10 @@ class SV_UserActivity_Installer
               `content_type` varbinary(25) NOT NULL,
               `content_id` int(10) unsigned NOT NULL,
               `timestamp` int(10) unsigned NOT NULL,
-              `blob` text NOT NULL,
+              `blob` VARBINARY(255) NOT NULL,
               PRIMARY KEY (`id`),
-              KEY `timestamp` (`timestamp`,`content_type`,`content_id`)
+              KEY `timestamp` (`timestamp`,`content_type`,`content_id`),
+              UNIQUE KEY `content` (`content_type`,`content_id`,`blob`(255))
             ) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci
         "
         );

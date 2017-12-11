@@ -190,7 +190,8 @@ class SV_UserActivity_Model extends XenForo_Model
             INSERT INTO xf_sv_user_activity 
             (content_type, content_id, `timestamp`, `blob`) 
             VALUES 
-            (?,?,?,?)',
+            (?,?,?,?)
+             ON DUPLICATE KEY UPDATE `timestamp` = values(`timestamp`)',
             [$contentType, $contentId, $time, $raw]
         );
 
@@ -317,13 +318,14 @@ class SV_UserActivity_Model extends XenForo_Model
     {
         $db = $this->_getDb();
         $raw = $db->fetchAll(
-            'SELECT * FROM xf_sv_user_activity WHERE content_type = ? AND content_id = ? AND `timestamp` >= ? AND `timestamp` <= ?',
-            [$contentType, $contentId, $start, $end]
+            'SELECT * FROM xf_sv_user_activity WHERE content_type = ? AND content_id = ? AND `timestamp` >= ? ORDER BY `timestamp` desc',
+            [$contentType, $contentId, $start]
         );
+
         $records = [];
         foreach ($raw as $row)
         {
-            $records[$row] = $row['timestamp'];
+            $records[$row['blob']] = $row['timestamp'];
         }
 
         return $records;
