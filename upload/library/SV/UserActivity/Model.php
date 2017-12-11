@@ -95,6 +95,20 @@ class SV_UserActivity_Model extends XenForo_Model
     }
 
     /**
+     * @return Credis_Client|null
+     */
+    protected function getCredis()
+    {
+        $registry = $this->_getDataRegistryModel();
+        $cache = $this->_getCache(true);
+        if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
+        {
+            return null;
+        }
+        return $credis;
+    }
+
+    /**
      * @param array        $data
      * @param integer|null $targetRunTime
      * @return array|bool
@@ -102,12 +116,12 @@ class SV_UserActivity_Model extends XenForo_Model
      */
     public function GarbageCollectActivity(array $data, $targetRunTime = null)
     {
-        $registry = $this->_getDataRegistryModel();
-        $cache = $this->_getCache(true);
-        if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
+        $credis = $this->getCredis();
+        if (!$credis)
         {
             return $this->_garbageCollectActivityFallback($data, $targetRunTime);
         }
+        $cache = $this->_getCache(true);
 
         /** @var Credis_Client $credis */
         $options = XenForo_Application::getOptions();
@@ -236,13 +250,14 @@ class SV_UserActivity_Model extends XenForo_Model
         // encode the data
         $raw = implode("\n", $data);
 
-        $registry = $this->_getDataRegistryModel();
-        $cache = $this->_getCache(true);
-        if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
+        $credis = $this->getCredis();
+        if (!$credis)
         {
             // do not have a fallback
             return $this->_updateSessionActivityFallback($contentType, $contentId, $score, $data, $raw);
         }
+        $registry = $this->_getDataRegistryModel();
+        $cache = $this->_getCache(true);
         /** @var Credis_Client $credis */
         $useLua = method_exists($registry, 'useLua') && $registry->useLua($cache);
 
@@ -328,9 +343,8 @@ class SV_UserActivity_Model extends XenForo_Model
         $start = $start - ($start % $this->getSampleInterval());
         $end = XenForo_Application::$time + 1;
 
-        $registry = $this->_getDataRegistryModel();
-        $cache = $this->_getCache(true);
-        if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache, true)))
+        $credis = $this->getCredis();
+        if (!$credis)
         {
             // do not have a fallback
             $onlineRecords = $this->_getUsersViewingFallback($contentType, $contentId, $start, $end);
@@ -342,6 +356,8 @@ class SV_UserActivity_Model extends XenForo_Model
         }
         else
         {
+            $registry = $this->_getDataRegistryModel();
+            $cache = $this->_getCache(true);
             /** @var Credis_Client $credis */
             $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
             $onlineRecords = $credis->zrevrangebyscore($key, $end, $start, ['withscores' => true]);
