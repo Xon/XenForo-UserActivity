@@ -13,12 +13,13 @@ class SV_UserActivity_Installer
         $db->query(
             "
             CREATE TABLE IF NOT EXISTS xf_sv_user_activity (
-              `content_type` VARBINARY(25) NOT NULL,
-              `content_id` INT(10) UNSIGNED NOT NULL,
-              `timestamp` INT(10) UNSIGNED NOT NULL,
-              `blob` TEXT NOT NULL,
-              PRIMARY KEY (`content_type`, `content_id`),
-              INDEX `timestamp` (`timestamp` ASC, `content_type` ASC, `content_id` ASC)
+              `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+              `content_type` varbinary(25) NOT NULL,
+              `content_id` int(10) unsigned NOT NULL,
+              `timestamp` int(10) unsigned NOT NULL,
+              `blob` text NOT NULL,
+              PRIMARY KEY (`id`),
+              KEY `timestamp` (`timestamp`,`content_type`,`content_id`)
             ) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci
         "
         );
