@@ -9,3 +9,4 @@ Supported content:
 - Conversations
 - Reports
 - NixFifty's Tickets
+- NixFifty's Calendar
