@@ -338,7 +338,7 @@ class SV_UserActivity_Model extends XenForo_Model
         $memberCount = 1;
         $guestCount = 0;
         $robotCount = 0;
-        $records = [$viewingUser];
+        $records = empty($viewingUser['user_id']) ? [] : [$viewingUser];
 
         $options = XenForo_Application::getOptions();
         $start = XenForo_Application::$time - $options->onlineStatusTimeout * 60;
