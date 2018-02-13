@@ -4,6 +4,7 @@ class SV_UserActivity_Model extends XenForo_Model
 {
     protected static $handlers = [];
     protected static $logging  = true;
+    protected static $forceFallback = true;
 
     public function getSampleInterval()
     {
@@ -42,6 +43,24 @@ class SV_UserActivity_Model extends XenForo_Model
         }
 
         return self::$handlers[$controllerName];
+    }
+
+    /**
+     * @param XenForo_ControllerResponse_Abstract|null $response
+     * @param array                                   $fetchData
+     */
+    public function insertBulkUserActivityIntoViewResponse(&$response, array $fetchData)
+    {
+        if ($response instanceof XenForo_ControllerResponse_View)
+        {
+            $visitor = XenForo_Visitor::getInstance();
+            if (!$visitor->hasPermission('RainDD_UA_PermissionsMain', 'RainDD_UA_ThreadViewers'))
+            {
+                return;
+            }
+
+            $response->params['UA_UsersViewingCount'] = $this->getUsersViewingCount($fetchData);
+        }
     }
 
     /**
@@ -103,6 +122,11 @@ class SV_UserActivity_Model extends XenForo_Model
      */
     protected function getCredis()
     {
+        if (self::$forceFallback)
+        {
+            return null;
+        }
+
         $registry = $this->_getDataRegistryModel();
         $cache = $this->_getCache(true);
         if (!method_exists($registry, 'getCredis') || !($credis = $registry->getCredis($cache)))
@@ -442,6 +466,86 @@ class SV_UserActivity_Model extends XenForo_Model
             'records'       => $records,
             'recordsUnseen' => $cutoff > 0 ? $memberVisibleCount - count($records) : 0,
         ];
+    }
+
+    /**
+     * @param array $fetchData
+     * @param int   $start
+     * @param int   $end
+     * @return array
+     */
+    protected function _getUsersViewingCountFallback(/** @noinspection PhpUnusedParameterInspection */ $fetchData, $start, $end)
+    {
+        $db = $this->_getDb();
+
+        $args = [$start];
+        $sql = [];
+        foreach($fetchData as $contentType => $list)
+        {
+            $list = array_filter(array_map('intval',array_unique($list)));
+            if ($list)
+            {
+                $sql[] = "\n(content_type = " . $db->quote($contentType) . " AND content_id in (" . $db->quote($list) . "))";
+            }
+        }
+
+        if (!$sql)
+        {
+            return [];
+        }
+
+        $sql = join(' OR ', $sql);
+
+        $raw = $db->fetchAll(
+            "SELECT content_type, content_id, count(*) as count
+                  FROM xf_sv_user_activity 
+                  WHERE `timestamp` >= ?  AND ({$sql})
+                  group by content_type, content_id",
+            $args
+        );
+
+        $records = [];
+        foreach ($raw as $row)
+        {
+            $records[$row['content_type']][$row['content_id']] = $row['count'];
+        }
+
+        return $records;
+    }
+
+    public function getUsersViewingCount($fetchData)
+    {
+
+        $memberCount = 1;
+        $guestCount = 0;
+        $robotCount = 0;
+        $records = empty($viewingUser['user_id']) ? [] : [$viewingUser];
+
+        $options = XenForo_Application::getOptions();
+        /** @noinspection PhpUndefinedFieldInspection */
+        $start = XenForo_Application::$time - $options->onlineStatusTimeout * 60;
+        $start = $start - ($start % $this->getSampleInterval());
+        $end = XenForo_Application::$time + 1;
+
+        $credis = $this->getCredis();
+        /** @noinspection PhpUndefinedFieldInspection */
+        $pruneChance = $options->UA_pruneChance;
+        if (!$credis)
+        {
+            // do not have a fallback
+            $onlineRecords = $this->_getUsersViewingCountFallback($fetchData, $start, $end);
+            // check if the activity counter needs pruning
+            if ($pruneChance > 0 && mt_rand() < $pruneChance)
+            {
+                $this->_garbageCollectActivityFallback([]);
+            }
+        }
+        else
+        {
+            $onlineRecords = null;
+        }
+
+        return $onlineRecords;
     }
 
     /**
