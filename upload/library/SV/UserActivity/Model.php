@@ -69,9 +69,13 @@ class SV_UserActivity_Model extends XenForo_Model
             {
                 return;
             }
+
             $response->params['UA_UsersViewing'] = $this->getUsersViewing($contentType, $response->params[$contentType][$contentIdField], $visitor->toArray());
             $response->params['UA_ViewerPermission'] = !empty($response->params['UA_UsersViewing']);
-            $response->params['UA_ContentType'] = new XenForo_Phrase($contentType);
+            if ($response->params['UA_ViewerPermission'])
+            {
+                $response->params['UA_ContentType'] = new XenForo_Phrase($contentType);
+            }
         }
     }
 
@@ -79,11 +83,11 @@ class SV_UserActivity_Model extends XenForo_Model
      * @param array        $data
      * @param integer|null $targetRunTime
      * @return array|bool
-     * @throws Zend_Cache_Exception
      */
-    protected function _garbageCollectActivityFallback(array $data, $targetRunTime = null)
+    protected function _garbageCollectActivityFallback(/** @noinspection PhpUnusedParameterInspection */array $data, $targetRunTime = null)
     {
         $options = XenForo_Application::getOptions();
+        /** @noinspection PhpUndefinedFieldInspection */
         $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
         $end = XenForo_Application::$time - $onlineStatusTimeout;
         $end = $end - ($end % $this->getSampleInterval());
@@ -125,6 +129,7 @@ class SV_UserActivity_Model extends XenForo_Model
 
         /** @var Credis_Client $credis */
         $options = XenForo_Application::getOptions();
+        /** @noinspection PhpUndefinedFieldInspection */
         $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
         // we need to manually expire records out of the per content hash set if they are kept alive with activity
         $datakey = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.";
@@ -227,11 +232,13 @@ class SV_UserActivity_Model extends XenForo_Model
         $options = XenForo_Application::getOptions();
         if ($viewingUser['user_id'])
         {
-            if ($options->RainDD_UA_ThreadViewType == 0)
+            /** @noinspection PhpUndefinedFieldInspection */
+            $threadViewType = $options->RainDD_UA_ThreadViewType;
+            if ($threadViewType == 0)
             {
                 $data['display_style_group_id'] = $viewingUser['display_style_group_id'];
             }
-            else if ($options->RainDD_UA_ThreadViewType == 1)
+            else if ($threadViewType == 1)
             {
                 $data['gender'] = $viewingUser['gender'];
                 $data['avatar_date'] = $viewingUser['avatar_date'];
@@ -264,6 +271,7 @@ class SV_UserActivity_Model extends XenForo_Model
 
         // record keeping
         $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
+        /** @noinspection PhpUndefinedFieldInspection */
         $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
 
         if ($useLua)
@@ -314,7 +322,7 @@ class SV_UserActivity_Model extends XenForo_Model
      * @param integer $end
      * @return array
      */
-    protected function _getUsersViewingFallback($contentType, $contentId, $start, $end)
+    protected function _getUsersViewingFallback(/** @noinspection PhpUnusedParameterInspection */$contentType, $contentId, $start, $end)
     {
         $db = $this->_getDb();
         $raw = $db->fetchAll(
@@ -341,17 +349,20 @@ class SV_UserActivity_Model extends XenForo_Model
         $records = empty($viewingUser['user_id']) ? [] : [$viewingUser];
 
         $options = XenForo_Application::getOptions();
+        /** @noinspection PhpUndefinedFieldInspection */
         $start = XenForo_Application::$time - $options->onlineStatusTimeout * 60;
         $start = $start - ($start % $this->getSampleInterval());
         $end = XenForo_Application::$time + 1;
 
         $credis = $this->getCredis();
+        /** @noinspection PhpUndefinedFieldInspection */
+        $pruneChance = $options->UA_pruneChance;
         if (!$credis)
         {
             // do not have a fallback
             $onlineRecords = $this->_getUsersViewingFallback($contentType, $contentId, $start, $end);
             // check if the activity counter needs pruning
-            if ($options->UA_pruneChance > 0 && mt_rand() < $options->UA_pruneChance)
+            if ($pruneChance > 0 && mt_rand() < $pruneChance)
             {
                 $this->_garbageCollectActivityFallback([]);
             }
@@ -364,9 +375,10 @@ class SV_UserActivity_Model extends XenForo_Model
             $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
             $onlineRecords = $credis->zrevrangebyscore($key, $end, $start, ['withscores' => true]);
             // check if the activity counter needs pruning
-            if ($options->UA_pruneChance > 0 && mt_rand() < $options->UA_pruneChance)
+            if ($pruneChance > 0 && mt_rand() < $pruneChance)
             {
                 $credis = $registry->getCredis($cache, false);
+                /** @noinspection PhpUndefinedFieldInspection */
                 if ($credis->zcard($key) >= count($onlineRecords) * $options->UA_fillFactor)
                 {
                     // O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
@@ -375,6 +387,7 @@ class SV_UserActivity_Model extends XenForo_Model
             }
         }
 
+        /** @noinspection PhpUndefinedFieldInspection */
         $cutoff = $options->SV_UA_Cutoff;
         $memberVisibleCount = 1;
 

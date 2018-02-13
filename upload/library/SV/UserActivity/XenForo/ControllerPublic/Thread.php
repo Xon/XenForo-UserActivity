@@ -1,5 +1,6 @@
 <?php
 
+/** @noinspection PhpIncludeInspection */
 include_once('SV/UserActivity/ActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Thread
 {
@@ -8,6 +9,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivi
         'type'       => 'thread',
         'id'         => 'thread_id',
         'actions'    => ['index'],
+        'countsOnly' => false,
     ];
     use ActivityInjector;
 }

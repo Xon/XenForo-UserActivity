@@ -1,5 +1,6 @@
 <?php
 
+/** @noinspection PhpIncludeInspection */
 include_once('SV/UserActivity/ActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Conversation extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Conversation
 {
@@ -8,6 +9,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Conversation extends XFCP_SV_User
         'type'       => 'conversation',
         'id'         => 'conversation_id',
         'actions'    => ['view'],
+        'countsOnly' => false,
     ];
     use ActivityInjector;
 }
