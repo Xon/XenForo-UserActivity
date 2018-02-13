@@ -4,7 +4,7 @@ class SV_UserActivity_Model extends XenForo_Model
 {
     protected static $handlers = [];
     protected static $logging  = true;
-    protected static $forceFallback = true;
+    protected static $forceFallback = false;
 
     public function getSampleInterval()
     {
@@ -536,8 +536,54 @@ class SV_UserActivity_Model extends XenForo_Model
         }
         else
         {
+            $cache = $this->_getCache(true);
+            /** @var Credis_Client $credis */
 
-            $onlineRecords = null;
+            $registry = $this->_getDataRegistryModel();
+            $useLua = method_exists($registry, 'useLua') && $registry->useLua($cache);
+
+            $onlineRecords = [];
+            $args = [];
+            foreach ($fetchData as $contentType => $list)
+            {
+                $list = array_filter(array_map('intval', array_unique($list)));
+                foreach ($list as $contentId)
+                {
+                    $args[] = [$contentType, $contentId];
+                }
+            }
+
+            if (false) //$useLua
+            {
+
+
+                /*
+                $ret = $credis->evalSha(self::LUA_IFZADDEXPIRE_SH1, [$key], [$score, $raw, $onlineStatusTimeout]);
+                if ($ret === null)
+                {
+                    $script = "";
+                    $credis->eval($script, [$key], [$score, $raw, $onlineStatusTimeout]);
+                }
+                */
+            }
+            else
+            {
+                $credis->pipeline()->multi();
+                foreach ($args as $row)
+                {
+                    $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$row[0]}.{$row[1]}";
+                    $credis->zcount($key, $start, $end);
+                }
+                $ret = $credis->exec();
+                foreach ($args as $i => $row)
+                {
+                    $val = intval($ret[$i]);
+                    if ($val)
+                    {
+                        $onlineRecords[$row[0]][$row[1]] = $val;
+                    }
+                }
+            }
         }
 
         return $onlineRecords;
