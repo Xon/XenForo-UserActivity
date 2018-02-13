@@ -515,12 +515,6 @@ class SV_UserActivity_Model extends XenForo_Model
 
     public function getUsersViewingCount($fetchData)
     {
-
-        $memberCount = 1;
-        $guestCount = 0;
-        $robotCount = 0;
-        $records = empty($viewingUser['user_id']) ? [] : [$viewingUser];
-
         $options = XenForo_Application::getOptions();
         /** @noinspection PhpUndefinedFieldInspection */
         $start = XenForo_Application::$time - $options->onlineStatusTimeout * 60;
@@ -542,6 +536,7 @@ class SV_UserActivity_Model extends XenForo_Model
         }
         else
         {
+
             $onlineRecords = null;
         }
 

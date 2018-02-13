@@ -3,7 +3,7 @@
 class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Model_User
 {
     /** @var boolean|null */
-    static $SV_UA_TrackRobots = null;
+    public static $SV_UA_TrackRobots = null;
 
     public function updateSessionActivity($userId, $ip, $controllerName, $action, $viewState, array $inputParams, $viewDate = null, $robotKey = '')
     {
