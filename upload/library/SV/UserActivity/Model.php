@@ -555,8 +555,6 @@ class SV_UserActivity_Model extends XenForo_Model
 
             if (false) //$useLua
             {
-
-
                 /*
                 $ret = $credis->evalSha(self::LUA_IFZADDEXPIRE_SH1, [$key], [$score, $raw, $onlineStatusTimeout]);
                 if ($ret === null)
