@@ -112,7 +112,7 @@ Only shows counts, not a list of users.]]></phrase>
     <phrase title="option_UA_pruneChance" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[Prune Chance]]></phrase>
     <phrase title="option_UA_pruneChance_explain" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[When the list of active users per content type is returned, this is the probability that a prune operation will be considered.]]></phrase>
     <phrase title="permission_group_RainDD_UA_PermissionsMain" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
-    <phrase title="permission_interface_raindd_ua_pigm" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity Permissions]]></phrase>
+    <phrase title="permission_interface_raindd_ua_pigm" version_id="1050300" version_string="1.5.3"><![CDATA[User Activity Permissions]]></phrase>
     <phrase title="permission_RainDD_UA_PermissionsMain_RainDD_UA_ThreadViewers" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Can view users who are viewing thread]]></phrase>
     <phrase title="RainDD_UA_Disabled" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Disabled]]></phrase>
     <phrase title="RainDD_UA_DisplayAvatar" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Avatar]]></phrase>
