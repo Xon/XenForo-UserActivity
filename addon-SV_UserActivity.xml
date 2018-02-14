@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.1" version_id="1050100" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.2" version_id="1050200" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -120,7 +120,7 @@ Only shows counts, not a list of users.]]></phrase>
     <phrase title="RainDD_UA_PositionAbovePageNav" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Above PageNav]]></phrase>
     <phrase title="RainDD_UA_PositionAboveQR" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Above Quick Reply]]></phrase>
     <phrase title="RainDD_UA_PositionBelowQR" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Below Quick Reply]]></phrase>
-    <phrase title="style_property_group_raindd_ua_main_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[[RainDD] User Activity]]></phrase>
+    <phrase title="style_property_group_raindd_ua_main_master" version_id="1050100" version_string="1.5.1"><![CDATA[User Activity]]></phrase>
     <phrase title="style_property_group_raindd_ua_main_master_desc" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[]]></phrase>
     <phrase title="style_property_RainDD_UA_Avatar_description_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[]]></phrase>
     <phrase title="style_property_RainDD_UA_Avatar_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Thread Avatar]]></phrase>
@@ -130,6 +130,8 @@ Only shows counts, not a list of users.]]></phrase>
     <phrase title="style_property_RainDD_UA_ThreadContainerH3_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Thread Container Title]]></phrase>
     <phrase title="style_property_RainDD_UA_ThreadContainer_description_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Adjust container properties such as background, border, and default font size.]]></phrase>
     <phrase title="style_property_RainDD_UA_ThreadContainer_master" version_id="1010031" version_string="1.1.0 Beta 1"><![CDATA[Thread Container]]></phrase>
+    <phrase title="style_property_UA_ViewerCount_description_master" version_id="1050200" version_string="1.5.2"><![CDATA[Styling for viewer counts next to thread/forums/etc]]></phrase>
+    <phrase title="style_property_UA_ViewerCount_master" version_id="1050200" version_string="1.5.2"><![CDATA[Viewer Count]]></phrase>
     <phrase title="ua_node_view_count" version_id="1050100" version_string="1.5.1"><![CDATA[({count} Viewers)]]></phrase>
     <phrase title="ua_node_view_count_single" version_id="1050000" version_string="1.5.0"><![CDATA[({count} Viewer)]]></phrase>
     <phrase title="UA_ViewingTitle" version_id="1000004" version_string="1.0.0 Alpha4"><![CDATA[Users Who Are Viewing This {ContentType} <span class="footnote">(Users: {users}, Guests: {guests})</span>]]></phrase>
@@ -140,6 +142,7 @@ Only shows counts, not a list of users.]]></phrase>
     <property property_name="RainDD_UA_Avatar" property_type="css" definition="1" group_name="raindd_ua_main" title="Thread Avatar" description="" css_components="layout" scalar_type="" scalar_parameters="" display_order="40" sub_group=""><![CDATA[[]]]></property>
     <property property_name="RainDD_UA_ThreadContainerH3" property_type="css" definition="1" group_name="raindd_ua_main" title="Thread Container Title" description="Adjust container title font and border." css_components="text,border,layout,extra" scalar_type="" scalar_parameters="" display_order="20" sub_group=""><![CDATA[{"border-bottom-color":"@primaryLighterStill","border-bottom-style":"solid","border-bottom-width":"1px","color":"@primaryLight","font-size":"12pt","margin-bottom":"5px","padding-bottom":"2px"}]]></property>
     <property property_name="RainDD_UA_ThreadContainerH3Footnote" property_type="css" definition="1" group_name="raindd_ua_main" title="Thread Container Counts" description="Adjust font properties for user and guest counts." css_components="text,layout,extra" scalar_type="" scalar_parameters="" display_order="30" sub_group=""><![CDATA[{"color":"@primaryLight","font-size":"12px","margin-top":"5px"}]]></property>
+    <property property_name="UA_ViewerCount" property_type="css" definition="1" group_name="raindd_ua_main" title="Viewer Count" description="Styling for viewer counts next to thread/forums/etc" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="50" sub_group=""><![CDATA[{"extra":"font-weight: lighter;","font-size":"80%","font-style":"italic"}]]></property>
     <group group_name="raindd_ua_main" display_order="20030">
       <title>User Activity</title>
       <description></description>
@@ -197,12 +200,17 @@ Only shows counts, not a list of users.]]></phrase>
 		</div>
 	</xen:if>
 </xen:if>]]></template>
-    <template title="ua_forum_view_container" version_id="1050000" version_string="1.5.0"><![CDATA[<xen:set var="$activityCount" value="{$UA_UsersViewingCount.{$contentType}.{$contentId}}" />
+    <template title="ua_forum_view_container" version_id="1050200" version_string="1.5.2"><![CDATA[<xen:require css="us_viewercount.css" />
+<xen:set var="$activityCount" value="{$UA_UsersViewingCount.{$contentType}.{$contentId}}" />
 <xen:if is="{$activityCount} == 1">
-<span class="nodeViewCount">{xen:phrase ua_node_view_count_single, 'count={xen:number {$activityCount}}'}</span>
+<span class="uaViewerCount">{xen:phrase ua_node_view_count_single, 'count={xen:number {$activityCount}}'}</span>
 <xen:elseif is="{$activityCount}"/>
-<span class="nodeViewCount">{xen:phrase ua_node_view_count, 'count={xen:number {$activityCount}}'}</span>
+<span class="uaViewerCount">{xen:phrase ua_node_view_count, 'count={xen:number {$activityCount}}'}</span>
 </xen:if>]]></template>
+    <template title="us_viewercount.css" version_id="1050200" version_string="1.5.2"><![CDATA[.uaViewerCount
+{
+	{xen:property UA_ViewerCount}
+}]]></template>
   </templates>
   <public_template_modifications>
     <modification template="conversation_view" modification_key="conversation_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
