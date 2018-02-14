@@ -172,7 +172,7 @@ Only shows counts, not a list of users.]]></phrase>
 {
 	{xen:property RainDD_UA_Avatar}
 }]]></template>
-    <template title="RainDD_UA_ThreadViewContainer" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
+    <template title="RainDD_UA_ThreadViewContainer" version_id="1050300" version_string="1.5.3"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
 	<xen:if hascontent="true">
 	<xen:require css="RainDD_UA_Thread.css" />
 	<div id="uaThreadViewContainer" class="section secondaryContent">
@@ -193,7 +193,11 @@ Only shows counts, not a list of users.]]></phrase>
 			</xen:foreach>
 			</xen:if>
 			<xen:if is="{$UA_UsersViewing.recordsUnseen}">
-				<li class="moreLink">... {xen:phrase and_x_more, 'count={xen:number $UA_UsersViewing.recordsUnseen}'}</li>
+				<xen:if is="{$UA_UsersViewing.records}">
+					<li class="moreLink">... {xen:phrase and_x_more, 'count={xen:number $UA_UsersViewing.recordsUnseen}'}</li>
+				<xen:else />
+					<li></li>
+				</xen:if>
 			</xen:if>
 			</xen:contentcheck>
 			</ol>

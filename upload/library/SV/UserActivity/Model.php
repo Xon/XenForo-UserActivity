@@ -367,10 +367,11 @@ class SV_UserActivity_Model extends XenForo_Model
     {
         $this->standardizeViewingUserReference($viewingUser);
 
-        $memberCount = 1;
+        $isGuest = empty($viewingUser['user_id']);
+        $memberCount = $isGuest ? 0 : 1;
         $guestCount = 0;
         $robotCount = 0;
-        $records = empty($viewingUser['user_id']) ? [] : [$viewingUser];
+        $records = $isGuest ? [] : [$viewingUser];
 
         $options = XenForo_Application::getOptions();
         /** @noinspection PhpUndefinedFieldInspection */
@@ -413,7 +414,8 @@ class SV_UserActivity_Model extends XenForo_Model
 
         /** @noinspection PhpUndefinedFieldInspection */
         $cutoff = $options->SV_UA_Cutoff;
-        $memberVisibleCount = 1;
+        $memberVisibleCount = $isGuest ? 0 : 1;
+        $recordsUnseen = 0;
 
         if (is_array($onlineRecords))
         {
@@ -440,11 +442,16 @@ class SV_UserActivity_Model extends XenForo_Model
                             $memberVisibleCount += 1;
                             if ($cutoff > 0 && $memberVisibleCount > $cutoff)
                             {
+                                $recordsUnseen += 1;
                                 continue;
                             }
                             $score = $score - ($score % $sampleInterval);
                             $rec['effective_last_activity'] = $score;
                             $records[] = $rec;
+                        }
+                        else
+                        {
+                            $recordsUnseen += 1;
                         }
                     }
                 }
@@ -464,7 +471,7 @@ class SV_UserActivity_Model extends XenForo_Model
             'guests'        => $guestCount,
             'robots'        => $robotCount,
             'records'       => $records,
-            'recordsUnseen' => $cutoff > 0 ? $memberVisibleCount - count($records) : 0,
+            'recordsUnseen' => $recordsUnseen,
         ];
     }
 
