@@ -296,7 +296,7 @@ class SV_UserActivity_Model extends XenForo_Model
         // record keeping
         $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
         /** @noinspection PhpUndefinedFieldInspection */
-        $onlineStatusTimeout = $options->onlineStatusTimeout * 60;
+        $onlineStatusTimeout = max(60, intval($options->onlineStatusTimeout) * 60);
 
         if ($useLua)
         {
