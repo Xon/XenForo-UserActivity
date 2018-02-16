@@ -195,7 +195,7 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
 {
 	{xen:property RainDD_UA_Avatar}
 }]]></template>
-    <template title="RainDD_UA_ThreadViewContainer" version_id="1050400" version_string="1.5.4"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
+    <template title="RainDD_UA_ThreadViewContainer" version_id="1050400" version_string="1.5.4"><![CDATA[<xen:if is="{$UA_UsersViewing}">
 	<xen:if hascontent="true">
 	<xen:require css="RainDD_UA_Thread.css" />
 	<div id="uaThreadViewContainer" class="section secondaryContent">
@@ -263,7 +263,7 @@ $2
 <xen:set var="$contentId" value="{$forum.node_id}" />
 </xen:include>$2]]></replace>
     </modification>
-    <modification template="forum_view" modification_key="forum_view_UA_Containers2" description="Adds activity containers (list)" execution_order="10" enabled="1" action="str_replace">
+    <modification template="forum_view" modification_key="forum_view_UA_Containers2" description="Adds activity containers (list)" execution_order="6040" enabled="1" action="str_replace">
       <find><![CDATA[<xen:hook name="forum_view_threads_before]]></find>
       <replace><![CDATA[<xen:include template="RainDD_UA_ThreadViewContainer" />
 $0]]></replace>

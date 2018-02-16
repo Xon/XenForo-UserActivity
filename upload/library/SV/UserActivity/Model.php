@@ -75,7 +75,7 @@ class SV_UserActivity_Model extends XenForo_Model
     public function insertUserActivityIntoViewResponse($controllerName, &$response)
     {
         if ($response instanceof XenForo_ControllerResponse_View &&
-            !isset($response->params['UA_ViewerPermission']))
+            !isset($response->params['UA_UsersViewing']))
         {
             $handler = $this->getHandler($controllerName);
             if (empty($handler))
@@ -96,14 +96,13 @@ class SV_UserActivity_Model extends XenForo_Model
             }
 
             $response->params['UA_UsersViewing'] = $this->getUsersViewing($contentType, $response->params[$contentType][$contentIdField], $visitor->toArray());
-            $response->params['UA_ViewerPermission'] = !empty($response->params['UA_UsersViewing']);
-            if ($response->params['UA_ViewerPermission'])
+            if ($response->params['UA_UsersViewing'])
             {
                 $response->params['UA_ContentType'] = new XenForo_Phrase($contentType);
                 if (!empty($response->subView))
                 {
                     $response->subView->params['UA_UsersViewing'] = $response->params['UA_UsersViewing'];
-                    $response->subView->params['UA_ViewerPermission'] = $response->params['UA_ViewerPermission'];
+                    $response->subView->params['UA_ContentType'] = $response->params['UA_ContentType'];
                 }
             }
         }
