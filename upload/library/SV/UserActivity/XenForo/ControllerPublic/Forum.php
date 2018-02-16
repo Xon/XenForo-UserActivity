@@ -6,6 +6,18 @@ include_once('SV/UserActivity/UserActivityInjector.php');
 include_once('SV/UserActivity/UserCountActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Forum
 {
+    public function actionForum()
+    {
+        $response = parent::actionForum();
+        // alias forum => node, limitations of activity tracking
+        if ($response instanceof XenForo_ControllerResponse_View &&
+            isset($response->params['forum']) && !isset($response->params['node']))
+        {
+            $response->params['node'] = $response->params['forum'];
+        }
+        return $response;
+    }
+
     protected function forumFetcher(/** @noinspection PhpUnusedParameterInspection */
         XenForo_ControllerResponse_View $response,
         array $config)
