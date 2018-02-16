@@ -28,12 +28,13 @@ class SV_UserActivity_XenForo_ControllerPublic_Watched extends XFCP_SV_UserActiv
         array $config)
 
     {
-        if (empty($response->params['threads']))
+        $key = ($action == 'threads') ? 'newThreads' : 'threads';
+        if (empty($response->params[$key]))
         {
             return null;
         }
 
-        return array_keys($response->params['threads']);
+        return array_keys($response->params[$key]);
     }
 
     protected $countActivityInjector = [
