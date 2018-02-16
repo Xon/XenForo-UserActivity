@@ -683,7 +683,14 @@ class SV_UserActivity_Model extends XenForo_Model
             return null;
         }
 
-        $permissions = XenForo_Visitor::getInstance()->getAllNodePermissions();
+        if (empty($params['nodeList']['nodePermissions']))
+        {
+            $permissions = XenForo_Visitor::getInstance()->getAllNodePermissions();
+        }
+        else
+        {
+            $permissions = $params['nodeList']['nodePermissions'];
+        }
         $threads = $params[$key];
         $nodeIds = array_unique(XenForo_Application::arrayColumn($threads, 'node_id'));
         foreach($nodeIds as $nodeId)
