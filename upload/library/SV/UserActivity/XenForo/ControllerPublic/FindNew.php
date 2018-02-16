@@ -5,8 +5,10 @@ include_once('SV/UserActivity/UserCountActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_FindNew extends XFCP_SV_UserActivity_XenForo_ControllerPublic_FindNew
 {
 
-    protected function threadFetcher(/** @noinspection PhpUnusedParameterInspection */
+    protected function threadFetcher(
+        /** @noinspection PhpUnusedParameterInspection */
         XenForo_ControllerResponse_View $response,
+        $action,
         array $config)
 
     {

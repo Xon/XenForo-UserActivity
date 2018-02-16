@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.4" version_id="1050400" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.5" version_id="1050500" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -195,7 +195,7 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
 {
 	{xen:property RainDD_UA_Avatar}
 }]]></template>
-    <template title="RainDD_UA_ThreadViewContainer" version_id="1050400" version_string="1.5.4"><![CDATA[<xen:if is="{$UA_UsersViewing}">
+    <template title="RainDD_UA_ThreadViewContainer" version_id="1050500" version_string="1.5.5"><![CDATA[<xen:if is="{$UA_UsersViewing}">
 	<xen:if hascontent="true">
 	<xen:require css="RainDD_UA_Thread.css" />
 	<div id="uaThreadViewContainer" class="section secondaryContent">
@@ -229,7 +229,7 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
 		</div>
 	</xen:if>
 </xen:if>]]></template>
-    <template title="ua_forum_view_container" version_id="1050200" version_string="1.5.2"><![CDATA[<xen:require css="us_viewercount.css" />
+    <template title="ua_forum_view_container" version_id="1050500" version_string="1.5.5"><![CDATA[<xen:require css="us_viewercount.css" />
 <xen:set var="$activityCount" value="{$UA_UsersViewingCount.{$contentType}.{$contentId}}" />
 <xen:if is="{$activityCount} == 1">
 <span class="uaViewerCount">{xen:phrase ua_node_view_count_single, 'count={xen:number {$activityCount}}'}</span>

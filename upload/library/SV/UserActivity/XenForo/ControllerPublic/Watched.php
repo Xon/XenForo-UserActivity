@@ -6,8 +6,10 @@ include_once('SV/UserActivity/UserActivityInjector.php');
 include_once('SV/UserActivity/UserCountActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Watched extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Watched
 {
-    protected function forumFetcher(/** @noinspection PhpUnusedParameterInspection */
+    protected function forumFetcher(
+        /** @noinspection PhpUnusedParameterInspection */
         XenForo_ControllerResponse_View $response,
+        $action,
         array $config)
     {
         if (empty($response->params['forumsWatched']))
@@ -19,8 +21,10 @@ class SV_UserActivity_XenForo_ControllerPublic_Watched extends XFCP_SV_UserActiv
     }
 
 
-    protected function threadFetcher(/** @noinspection PhpUnusedParameterInspection */
+    protected function threadFetcher(
+        /** @noinspection PhpUnusedParameterInspection */
         XenForo_ControllerResponse_View $response,
+        $action,
         array $config)
 
     {

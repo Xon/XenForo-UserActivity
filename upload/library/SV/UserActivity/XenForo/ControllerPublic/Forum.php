@@ -18,8 +18,10 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         return $response;
     }
 
-    protected function forumFetcher(/** @noinspection PhpUnusedParameterInspection */
+    protected function forumFetcher(
+        /** @noinspection PhpUnusedParameterInspection */
         XenForo_ControllerResponse_View $response,
+        $action,
         array $config)
     {
         if (empty($response->params['forum']['node_id']))
@@ -30,8 +32,10 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         return [$response->params['forum']['node_id']];
     }
 
-    protected function subForumFetcher(/** @noinspection PhpUnusedParameterInspection */
+    protected function forumListFetcher(
+        /** @noinspection PhpUnusedParameterInspection */
         XenForo_ControllerResponse_View $response,
+        $action,
         array $config)
 
     {
@@ -43,8 +47,10 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         return array_keys($response->params['nodeList']['nodeParents']);
     }
 
-    protected function threadFetcher(/** @noinspection PhpUnusedParameterInspection */
+    protected function threadFetcher(
+        /** @noinspection PhpUnusedParameterInspection */
         XenForo_ControllerResponse_View $response,
+        $action,
         array $config)
 
     {
@@ -56,8 +62,10 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         return array_keys($response->params['threads']);
     }
 
-    protected function stickyThreadFetcher(/** @noinspection PhpUnusedParameterInspection */
+    protected function stickyThreadFetcher(
+        /** @noinspection PhpUnusedParameterInspection */
         XenForo_ControllerResponse_View $response,
+        $action,
         array $config)
 
     {
@@ -71,27 +79,33 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
 
     protected $countActivityInjector = [
         [
+            'activeKey' => 'index-forum',
+            'type'      => 'node',
+            'actions'   => ['index'],
+            'fetcher'   => 'forumListFetcher',
+        ],
+        [
             'activeKey' => 'forum',
             'type'      => 'node',
-            'actions'   => ['list', 'forum'],
+            'actions'   => ['forum'],
             'fetcher'   => 'forumFetcher',
         ],
         [
             'activeKey' => 'sub-forum',
             'type'      => 'node',
-            'actions'   => ['list', 'forum'],
-            'fetcher'   => 'subForumFetcher',
+            'actions'   => ['forum'],
+            'fetcher'   => 'forumListFetcher',
         ],
         [
             'activeKey' => 'thread',
             'type'      => 'thread',
-            'actions'   => ['list', 'forum'],
+            'actions'   => ['forum'],
             'fetcher'   => 'threadFetcher'
         ],
         [
             'activeKey' => 'sticky-thread',
             'type'      => 'thread',
-            'actions'   => ['list', 'forum'],
+            'actions'   => ['forum'],
             'fetcher'   => 'stickyThreadFetcher'
         ],
     ];

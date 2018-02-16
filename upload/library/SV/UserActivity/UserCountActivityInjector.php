@@ -43,7 +43,7 @@ trait UserCountActivityInjector
                 continue;
             }
 
-            $output = $callback($response, $config);
+            $output = $callback($response, $actionL, $config);
             if (empty($output))
             {
                 continue;
