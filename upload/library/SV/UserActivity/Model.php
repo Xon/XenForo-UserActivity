@@ -690,7 +690,7 @@ class SV_UserActivity_Model extends XenForo_Model
             $nodePermissions = $permissions[$nodeId];
             if (!empty($nodePermissions['viewContent']))
             {
-                $nodeIds[] = $nodeId;
+                $threadIds[] = $nodeId;
             }
         }
         return $threadIds;
