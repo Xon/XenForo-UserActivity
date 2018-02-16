@@ -6,62 +6,81 @@ include_once('SV/UserActivity/UserActivityInjector.php');
 include_once('SV/UserActivity/UserCountActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Forum
 {
-    protected function forumFetcher(XenForo_ControllerResponse_View $response)
+    protected function forumFetcher(/** @noinspection PhpUnusedParameterInspection */
+        XenForo_ControllerResponse_View $response,
+        array $config)
     {
         if (empty($response->params['forum']['node_id']))
         {
             return null;
         }
+
         return [$response->params['forum']['node_id']];
     }
 
-    protected function subForumFetcher(XenForo_ControllerResponse_View $response)
+    protected function subForumFetcher(/** @noinspection PhpUnusedParameterInspection */
+        XenForo_ControllerResponse_View $response,
+        array $config)
+
     {
         if (empty($response->params['nodeList']))
         {
             return null;
         }
+
         return array_keys($response->params['nodeList']['nodeParents']);
     }
 
-    protected function threadFetcher(XenForo_ControllerResponse_View $response)
+    protected function threadFetcher(/** @noinspection PhpUnusedParameterInspection */
+        XenForo_ControllerResponse_View $response,
+        array $config)
+
     {
         if (empty($response->params['threads']))
         {
             return null;
         }
+
         return array_keys($response->params['threads']);
     }
 
-    protected function stickyThreadFetcher(XenForo_ControllerResponse_View $response)
+    protected function stickyThreadFetcher(/** @noinspection PhpUnusedParameterInspection */
+        XenForo_ControllerResponse_View $response,
+        array $config)
+
     {
         if (empty($response->params['stickyThreads']))
         {
             return null;
         }
+
         return array_keys($response->params['stickyThreads']);
     }
 
     protected $countActivityInjector = [
-        'forum'  => [
-            'type'    => 'node',
-            'actions' => ['list', 'forum'],
-            'fetcher' => 'forumFetcher',
+        [
+            'activeKey' => 'forum',
+            'type'      => 'node',
+            'actions'   => ['list', 'forum'],
+            'fetcher'   => 'forumFetcher',
         ],
-        'sub-forum' => [
-            'type'    => 'node',
-            'actions' => ['list', 'forum'],
-            'fetcher' => 'subForumFetcher',
+        [
+            'activeKey' => 'sub-forum',
+            'type'      => 'node',
+            'actions'   => ['list', 'forum'],
+            'fetcher'   => 'subForumFetcher',
         ],
-        'thread' => [
-            'type'    => 'thread',
-            'actions' => ['list', 'forum'],
-            'fetcher' => 'threadFetcher'
+        [
+            'activeKey' => 'thread',
+            'type'      => 'thread',
+            'actions'   => ['list', 'forum'],
+            'fetcher'   => 'threadFetcher'
         ],
-        'sticky-thread' => [
-            'type'    => 'thread',
-            'actions' => ['list', 'forum'],
-            'fetcher' => 'stickyThreadFetcher'
+        [
+            'activeKey' => 'sticky-thread',
+            'type'      => 'thread',
+            'actions'   => ['list', 'forum'],
+            'fetcher'   => 'stickyThreadFetcher'
         ],
     ];
     use UserCountActivityInjector;

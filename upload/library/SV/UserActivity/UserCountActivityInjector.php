@@ -22,10 +22,10 @@ trait UserCountActivityInjector
         $fetchData = [];
         $options = XenForo_Application::getOptions();
         $actionL = strtolower($action);
-        foreach($this->countActivityInjector as $activeKey => $config)
+        foreach($this->countActivityInjector as $config)
         {
             /** @noinspection PhpUndefinedFieldInspection */
-            if (empty($options->svUADisplayCounts[$activeKey]))
+            if (empty($options->svUADisplayCounts[$config['activeKey']]))
             {
                 continue;
             }
@@ -43,7 +43,7 @@ trait UserCountActivityInjector
                 continue;
             }
 
-            $output = $callback($response);
+            $output = $callback($response, $config);
             if (empty($output))
             {
                 continue;
