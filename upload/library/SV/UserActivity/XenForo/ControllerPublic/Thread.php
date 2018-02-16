@@ -10,14 +10,44 @@ class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivi
     {
         $response = parent::actionIndex();
 
+        $options = XenForo_Application::getOptions();
         /** @noinspection PhpUndefinedFieldInspection */
         if ($response instanceof XenForo_ControllerResponse_View &&
-            isset($response->params['thread']['node_id']))
+            isset($response->params['thread']['node_id']) &&
+            !empty($options->svUAPopulateUsers['forum']))
         {
-            $ip = $this->_request->getClientIp(false);
+            $nodeTrackLimit = intval($options->svUAThreadNodeTrackLimit);
             /** @var  SV_UserActivity_Model $userActivityModel */
             $userActivityModel = $this->getModelFromCache('SV_UserActivity_Model');
-            $userActivityModel->trackViewerUsage('node', $response->params['thread']['node_id'], 'forum', $ip);
+            $ip = $this->_request->getClientIp(false);
+            if ($nodeTrackLimit === 1 || count($response->params['nodeBreadCrumbs']) == 1)
+            {
+                $userActivityModel->trackViewerUsage('node', $response->params['thread']['node_id'], 'forum', $ip);
+            }
+            else if ($nodeTrackLimit !== 0)
+            {
+                $node = $response->params['forum'];
+                /** @var XenForo_Model_Node $nodeModel */
+                $nodeModel = $this->getModelFromCache('XenForo_Model_Node');
+                $nodes = $nodeModel->getNodeAncestors($node);
+                $nodes[$node['node_id']] = $node;
+
+                $nodes = array_reverse($nodes);
+
+                $count = $nodeTrackLimit < 0 ? PHP_INT_MAX : $nodeTrackLimit;
+                foreach ($nodes AS $node)
+                {
+                    if ($node['node_type_id'] === 'Forum' )
+                    {
+                        $userActivityModel->trackViewerUsage('node', $node['node_id'], 'forum', $ip);
+                        $count--;
+                        if ($count <= 0)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         return $response;

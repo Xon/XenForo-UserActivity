@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.8" version_id="1050800" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.9" version_id="1050900" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -103,6 +103,12 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
       <sub_options>*</sub_options>
       <relation group_id="RainDD_UA_Options" display_order="330"/>
     </option>
+    <option option_id="svUAThreadNodeTrackLimit" edit_format="spinbox" data_type="integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="390"/>
+    </option>
   </optiongroups>
   <permissions>
     <permission_groups>
@@ -129,6 +135,12 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
     <phrase title="option_svUADisplayUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Requires the equivalent content type be tracked by the "Track User Activity" setting]]></phrase>
     <phrase title="option_svUAPopulateUsers" version_id="1050400" version_string="1.5.4"><![CDATA[Track User Activity]]></phrase>
     <phrase title="option_svUAPopulateUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Track's user activity for the listed content types. Required for the above display options to work]]></phrase>
+    <phrase title="option_svUAThreadNodeTrackLimit" version_id="1050900" version_string="1.5.9"><![CDATA[Thread Contibute limit]]></phrase>
+    <phrase title="option_svUAThreadNodeTrackLimit_explain" version_id="1050900" version_string="1.5.9"><![CDATA[Limits the number of node's view state touched by when a thread is viewed.<br/>
+<br/>
+When a thread is viewed, the bread-crumb is traced to find each node above the thread to contribute the thread's view to.<br/>
+0 to disable<br/>
+-1 for all]]></phrase>
     <phrase title="option_SV_UA_Cutoff" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[User cutoff]]></phrase>
     <phrase title="option_SV_UA_Cutoff_explain" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[Maximum number of users to display before it is displays as "...and X others".<br/>
 0 to show all usernames always.]]></phrase>
