@@ -686,11 +686,10 @@ class SV_UserActivity_Model extends XenForo_Model
         $threadIds = [];
         foreach($params[$key] as $thread)
         {
-            $nodeId = $thread['node_id'];
-            $nodePermissions = $permissions[$nodeId];
+            $nodePermissions = $permissions[$thread['node_id']];
             if (!empty($nodePermissions['viewContent']))
             {
-                $threadIds[] = $nodeId;
+                $threadIds[] = $thread['thread_id'];
             }
         }
         return $threadIds;
