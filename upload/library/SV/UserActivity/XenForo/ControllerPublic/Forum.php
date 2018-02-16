@@ -57,13 +57,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         array $config)
 
     {
-        if (empty($response->params['nodeList']['nodePermissions']))
-        {
-            return null;
-        }
-        $permissions = $response->params['nodeList']['nodePermissions'];
-
-        return $this->_getSVUserActivityModel()->getFilteredThreadIds($response->params, 'threads', $permissions);
+        return $this->_getSVUserActivityModel()->getFilteredThreadIds($response->params, 'threads');
     }
 
     protected function stickyThreadFetcher(
@@ -73,13 +67,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         array $config)
 
     {
-        if (empty($response->params['nodeList']['nodePermissions']))
-        {
-            return null;
-        }
-        $permissions = $response->params['nodeList']['nodePermissions'];
-
-        return $this->_getSVUserActivityModel()->getFilteredThreadIds($response->params, 'stickyThreads', $permissions);
+        return $this->_getSVUserActivityModel()->getFilteredThreadIds($response->params, 'stickyThreads');
     }
 
     protected $countActivityInjector = [

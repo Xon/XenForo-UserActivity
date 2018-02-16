@@ -676,15 +676,29 @@ class SV_UserActivity_Model extends XenForo_Model
      * @param array  $permissions
      * @return array|null
      */
-    public function getFilteredThreadIds(array $params, $key, array $permissions)
+    public function getFilteredThreadIds(array $params, $key)
     {
         if (empty($params[$key]))
         {
             return null;
         }
 
+        $permissions = XenForo_Visitor::getInstance()->getAllNodePermissions();
+        $threads = $params[$key];
+        $nodeIds = array_unique(XenForo_Application::arrayColumn($threads, 'node_id'));
+        foreach($nodeIds as $nodeId)
+        {
+            if (!isset($permissions[$nodeId]))
+            {
+                /** @var XenForo_Model_Node $nodeModel */
+                $nodeModel = $this->getModelFromCache('XenForo_Model_Node');
+                $permissions = $nodeModel->getNodePermissionsForPermissionCombination();
+                break;
+            }
+        }
+
         $threadIds = [];
-        foreach($params[$key] as $thread)
+        foreach($threads as $thread)
         {
             $nodePermissions = $permissions[$thread['node_id']];
             if (!empty($nodePermissions['viewContent']))
