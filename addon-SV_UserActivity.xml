@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.3" version_id="1050300" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.4" version_id="1050400" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -13,6 +13,8 @@
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Post" description="XenForo_ControllerPublic_Post"/>
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Conversation" description="XenForo_ControllerPublic_Conversation"/>
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="NixFifty_Tickets_ControllerPublic_Ticket" description="NixFifty_Tickets_ControllerPublic_Ticket"/>
+    <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_FindNew" description="XenForo_ControllerPublic_FindNew"/>
+    <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Watched" description="XenForo_ControllerPublic_Watched"/>
     <listener event_id="load_class_controller" execute_order="31780" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Report" description="XenForo_ControllerPublic_Report"/>
     <listener event_id="load_class_model" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_Model_User" description="XenForo_Model_User"/>
     <listener event_id="template_create" execute_order="10" callback_class="SV_UserActivity_Listener" callback_method="templateCreate" active="1" hint="node_forum_level_2" description="node_forum_level_2"/>
@@ -69,11 +71,10 @@
       <edit_format_params>thread=Thread List
 sticky-thread=Sticky Thread List
 forum=Forum List
-find-new=Find New Threads</edit_format_params>
-      <sub_options>thread
-sticky-thread
-forum
-find-new</sub_options>
+find-new=Find New Threads
+watched-forums=Watched Forum List
+watched-threads=Watched Thread List</edit_format_params>
+      <sub_options>*</sub_options>
       <relation group_id="RainDD_UA_Options" display_order="300"/>
     </option>
     <option option_id="svUADisplayUsers" edit_format="checkbox" data_type="array" can_backup="1">
@@ -84,12 +85,7 @@ conversation=Conversation
 report=Report
 nf_ticket=&lt;a href="https://xenforo.com/community/resources/tickets.4549/"&gt;NixFifty's Tickets&lt;/a&gt;
 nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty's Calendar&lt;/a&gt;</edit_format_params>
-      <sub_options>thread
-forum
-conversation
-report
-nf_ticket
-nf_calendar</sub_options>
+      <sub_options>*</sub_options>
       <relation group_id="RainDD_UA_Options" display_order="310"/>
     </option>
   </optiongroups>
@@ -113,9 +109,9 @@ nf_calendar</sub_options>
     <phrase title="option_RainDD_UA_ThreadViewType" version_id="1000000" version_string="1.0.0"><![CDATA[Viewing Thread Display Type]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewType_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Display users name or avatar for users Viewing Thread.]]></phrase>
     <phrase title="option_svUADisplayCounts" version_id="1050300" version_string="1.5.3"><![CDATA[Display Viewer Counts]]></phrase>
-    <phrase title="option_svUADisplayCounts_explain" version_id="1050300" version_string="1.5.3"><![CDATA[]]></phrase>
-    <phrase title="option_svUADisplayUsers" version_id="1050300" version_string="1.5.3"><![CDATA[Display User List]]></phrase>
-    <phrase title="option_svUADisplayUsers_explain" version_id="1050300" version_string="1.5.3"><![CDATA[]]></phrase>
+    <phrase title="option_svUADisplayCounts_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Requires the equivalent content type be tracked by the "Populate & Populate & Display User List" setting]]></phrase>
+    <phrase title="option_svUADisplayUsers" version_id="1050400" version_string="1.5.4"><![CDATA[Populate & Display User List]]></phrase>
+    <phrase title="option_svUADisplayUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Tracks recent users for the above content]]></phrase>
     <phrase title="option_SV_UA_Cutoff" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[User cutoff]]></phrase>
     <phrase title="option_SV_UA_Cutoff_explain" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[Maximum number of users to display before it is displays as "...and X others".<br/>
 0 to show all usernames always.]]></phrase>

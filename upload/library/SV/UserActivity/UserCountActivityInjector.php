@@ -70,6 +70,10 @@ trait UserCountActivityInjector
             $model->insertBulkUserActivityIntoViewResponse($response, $fetchData);
             if (!empty($response->params['UA_UsersViewingCount']))
             {
+                if (!empty($response->subView))
+                {
+                    $response->subView->params['UA_UsersViewingCount'] = $response->params['UA_UsersViewingCount'];
+                }
                 SV_UserActivity_Listener::$viewCounts = $response->params['UA_UsersViewingCount'];
             }
         }
