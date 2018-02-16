@@ -44,7 +44,20 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
             return null;
         }
 
-        return array_keys($response->params['nodeList']['nodeParents']);
+        $nodeIds = [];
+        $permissions = $response->params['nodeList']['nodePermissions'];
+        foreach($response->params['nodeList']['nodeParents'] as $nodeId => $node)
+        {
+            $nodePermissions = $permissions[$nodeId];
+            if (!empty($nodePermissions['viewOthers']) &&
+                !empty($nodePermissions['viewContent']))
+            {
+                $nodeIds[] = $nodeId;
+            }
+        }
+
+
+        return $nodeIds;
     }
 
     protected function threadFetcher(
@@ -54,12 +67,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         array $config)
 
     {
-        if (empty($response->params['threads']))
-        {
-            return null;
-        }
-
-        return array_keys($response->params['threads']);
+        return $this->getFilteredThreadIds($response, 'threads');
     }
 
     protected function stickyThreadFetcher(
@@ -69,12 +77,29 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         array $config)
 
     {
-        if (empty($response->params['stickyThreads']))
+        return $this->getFilteredThreadIds($response, 'stickyThreads');
+    }
+
+    protected function getFilteredThreadIds(XenForo_ControllerResponse_View $response, $key)
+    {
+        if (empty($response->params[$key]) ||
+            empty($response->params['nodeList']))
         {
             return null;
         }
 
-        return array_keys($response->params['stickyThreads']);
+        $permissions = $response->params['nodeList']['nodePermissions'];
+        $threadIds = [];
+        foreach($response->params[$key] as $thread)
+        {
+            $nodeId = $thread['node_id'];
+            $nodePermissions = $permissions[$nodeId];
+            if (!empty($nodePermissions['viewContent']))
+            {
+                $nodeIds[] = $nodeId;
+            }
+        }
+        return $threadIds;
     }
 
     protected $countActivityInjector = [
@@ -115,7 +140,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         'controller' => 'XenForo_ControllerPublic_Forum',
         'type'       => 'node',
         'id'         => 'node_id',
-        'actions'    => ['index', 'forum'],
+        'actions'    => ['forum'],
         'activeKey'  => 'forum',
     ];
     use UserActivityInjector;
