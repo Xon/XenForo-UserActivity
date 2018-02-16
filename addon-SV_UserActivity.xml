@@ -70,7 +70,9 @@
       <default_value>a:0:{}</default_value>
       <edit_format_params>thread=Thread List
 sticky-thread=Sticky Thread List
+index-forum=Index Page Forums
 forum=Forum List
+sub-forum=Sub forum List
 find-new=Find New Threads
 watched-forums=Watched Forum List
 watched-threads=Watched Thread List</edit_format_params>
