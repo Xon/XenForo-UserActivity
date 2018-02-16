@@ -182,7 +182,7 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
 {
 	{xen:property RainDD_UA_Avatar}
 }]]></template>
-    <template title="RainDD_UA_ThreadViewContainer" version_id="1050300" version_string="1.5.3"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
+    <template title="RainDD_UA_ThreadViewContainer" version_id="1050400" version_string="1.5.4"><![CDATA[<xen:if is="{$UA_ViewerPermission}">
 	<xen:if hascontent="true">
 	<xen:require css="RainDD_UA_Thread.css" />
 	<div id="uaThreadViewContainer" class="section secondaryContent">
@@ -208,6 +208,8 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
 				<xen:else />
 					<li></li>
 				</xen:if>
+			<xen:elseif is="{$UA_UsersViewing.guests}" />
+				<li></li>
 			</xen:if>
 			</xen:contentcheck>
 			</ol>
