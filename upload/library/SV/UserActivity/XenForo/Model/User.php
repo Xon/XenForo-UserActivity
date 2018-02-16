@@ -2,30 +2,25 @@
 
 class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Model_User
 {
-    /** @var boolean|null */
-    public static $SV_UA_TrackRobots = null;
-
     public function updateSessionActivity($userId, $ip, $controllerName, $action, $viewState, array $inputParams, $viewDate = null, $robotKey = '')
     {
         $userActivityModel = $this->_getSVUserActivityModel();
         $handler = $userActivityModel->getHandler($controllerName);
         if (!empty($handler) && $userActivityModel->isLogging() && $viewState == 'valid')
         {
-            $requiredKey = $handler[1];
+            $requiredKey = $handler['id'];
             if (!empty($inputParams[$requiredKey]))
             {
-                if (self::$SV_UA_TrackRobots === null)
-                {
-                    self::$SV_UA_TrackRobots = XenForo_Application::getOptions()->SV_UA_TrackRobots;
-                }
-                if (self::$SV_UA_TrackRobots || empty($robotKey))
+                //$activeKey = null
+                /** @noinspection PhpUndefinedFieldInspection */
+                if (XenForo_Application::getOptions()->SV_UA_TrackRobots || empty($robotKey))
                 {
                     $visitor = XenForo_Visitor::getInstance();
                     if ($userId == $visitor['user_id'])
                     {
-                        $user = $visitor->toArray();
-                        $contentType = $handler[0];
-                        $userActivityModel->updateSessionActivity($contentType, $inputParams[$requiredKey], $ip, $robotKey, $user);
+                        /** @var  SV_UserActivity_Model $userActivityModel */
+                        $userActivityModel = $this->getModelFromCache('SV_UserActivity_Model');
+                        $userActivityModel->trackViewerUsage($handler['type'], $inputParams[$requiredKey], $handler['activeKey'], $ip, $robotKey);
                     }
                 }
             }

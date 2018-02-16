@@ -2,8 +2,8 @@
 
 class SV_UserActivity_Model extends XenForo_Model
 {
-    protected static $handlers = [];
-    protected static $logging  = true;
+    protected static $handlers      = [];
+    protected static $logging       = true;
     protected static $forceFallback = false;
 
     public function getSampleInterval()
@@ -23,12 +23,11 @@ class SV_UserActivity_Model extends XenForo_Model
 
     /**
      * @param string $controllerName
-     * @param string $contentType
-     * @param string $contentIdField
+     * @param array  $config
      */
-    public function registerHandler($controllerName, $contentType, $contentIdField)
+    public function registerHandler($controllerName, $config)
     {
-        self::$handlers[$controllerName] = [$contentType, $contentIdField];
+        self::$handlers[$controllerName] = $config;
     }
 
     /**
@@ -47,7 +46,7 @@ class SV_UserActivity_Model extends XenForo_Model
 
     /**
      * @param XenForo_ControllerResponse_Abstract|null $response
-     * @param array                                   $fetchData
+     * @param array                                    $fetchData
      */
     public function insertBulkUserActivityIntoViewResponse(&$response, array $fetchData)
     {
@@ -82,8 +81,8 @@ class SV_UserActivity_Model extends XenForo_Model
             {
                 return;
             }
-            $contentType = $handler[0];
-            $contentIdField = $handler[1];
+            $contentType = $handler['type'];
+            $contentIdField = $handler['id'];
             if (empty($response->params[$contentType][$contentIdField]))
             {
                 return;
@@ -113,7 +112,8 @@ class SV_UserActivity_Model extends XenForo_Model
      * @param integer|null $targetRunTime
      * @return array|bool
      */
-    protected function _garbageCollectActivityFallback(/** @noinspection PhpUnusedParameterInspection */array $data, $targetRunTime = null)
+    protected function _garbageCollectActivityFallback(/** @noinspection PhpUnusedParameterInspection */
+        array $data, $targetRunTime = null)
     {
         $options = XenForo_Application::getOptions();
         /** @noinspection PhpUndefinedFieldInspection */
@@ -143,6 +143,7 @@ class SV_UserActivity_Model extends XenForo_Model
         {
             return null;
         }
+
         return $credis;
     }
 
@@ -356,11 +357,12 @@ class SV_UserActivity_Model extends XenForo_Model
      * @param integer $end
      * @return array
      */
-    protected function _getUsersViewingFallback(/** @noinspection PhpUnusedParameterInspection */$contentType, $contentId, $start, $end)
+    protected function _getUsersViewingFallback(/** @noinspection PhpUnusedParameterInspection */
+        $contentType, $contentId, $start, $end)
     {
         $db = $this->_getDb();
         $raw = $db->fetchAll(
-            'SELECT * FROM xf_sv_user_activity WHERE content_type = ? AND content_id = ? AND `timestamp` >= ? ORDER BY `timestamp` desc',
+            'SELECT * FROM xf_sv_user_activity WHERE content_type = ? AND content_id = ? AND `timestamp` >= ? ORDER BY `timestamp` DESC',
             [$contentType, $contentId, $start]
         );
 
@@ -491,15 +493,16 @@ class SV_UserActivity_Model extends XenForo_Model
      * @param int   $end
      * @return array
      */
-    protected function _getUsersViewingCountFallback(/** @noinspection PhpUnusedParameterInspection */ $fetchData, $start, $end)
+    protected function _getUsersViewingCountFallback(/** @noinspection PhpUnusedParameterInspection */
+        $fetchData, $start, $end)
     {
         $db = $this->_getDb();
 
         $args = [$start];
         $sql = [];
-        foreach($fetchData as $contentType => $list)
+        foreach ($fetchData as $contentType => $list)
         {
-            $list = array_filter(array_map('intval',array_unique($list)));
+            $list = array_filter(array_map('intval', array_unique($list)));
             if ($list)
             {
                 $sql[] = "\n(content_type = " . $db->quote($contentType) . " AND content_id in (" . $db->quote($list) . "))";
@@ -602,6 +605,44 @@ class SV_UserActivity_Model extends XenForo_Model
         }
 
         return $onlineRecords;
+    }
+
+    /**
+     * @param string      $contentType
+     * @param int         $contentId
+     * @param string      $activeKey
+     * @param string|null $ip
+     * @param string|null $robotKey
+     * @param array|null  $user
+     * @throws Zend_Cache_Exception
+     */
+    public function trackViewerUsage($contentType, $contentId, $activeKey, $ip = null, $robotKey = null, array $user = null)
+    {
+        if (!$contentType ||
+            !$contentId ||
+            !$activeKey ||
+            !$this->isLogging())
+        {
+            return;
+        }
+        $options = XenForo_Application::getOptions();
+        /** @noinspection PhpUndefinedFieldInspection */
+        if (empty($options->svUAPopulateUsers[$activeKey]))
+        {
+            return;
+        }
+
+        if ($robotKey === null && XenForo_Application::isRegistered('session'))
+        {
+            $session = XenForo_Application::getSession();
+            $robotKey = $session->isRegistered('robotId') ? $session->get('robotId') : '';
+        }
+
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ($options->SV_UA_TrackRobots || empty($robotKey))
+        {
+            $this->updateSessionActivity($contentType, $contentId, $ip, $robotKey, $user);
+        }
     }
 
     /**

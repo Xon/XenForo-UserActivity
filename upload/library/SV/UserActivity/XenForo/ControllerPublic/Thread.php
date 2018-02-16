@@ -10,31 +10,12 @@ class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivi
 
         /** @noinspection PhpUndefinedFieldInspection */
         if ($response instanceof XenForo_ControllerResponse_View &&
-            XenForo_Application::getOptions()->svUATrackForum &&
-            isset($response->params['thread']['node_id']) &&
-            XenForo_Application::isRegistered('session'))
+            isset($response->params['thread']['node_id']))
         {
-            $nodeId = $response->params['thread']['node_id'];
-
+            $ip = $this->_request->getClientIp(false);
             /** @var  SV_UserActivity_Model $userActivityModel */
             $userActivityModel = $this->getModelFromCache('SV_UserActivity_Model');
-            if ($nodeId && $userActivityModel->isLogging())
-            {
-                $session = XenForo_Application::getSession();
-                $robotKey = $session->isRegistered('robotId') ? $session->get('robotId') : '';
-                $ip = $this->_request->getClientIp(false);
-
-                if (SV_UserActivity_XenForo_Model_User::$SV_UA_TrackRobots === null)
-                {
-                    SV_UserActivity_XenForo_Model_User::$SV_UA_TrackRobots = XenForo_Application::getOptions()->SV_UA_TrackRobots;
-                }
-                if (SV_UserActivity_XenForo_Model_User::$SV_UA_TrackRobots || empty($robotKey))
-                {
-                    $visitor = XenForo_Visitor::getInstance();
-                    $user = $visitor->toArray();
-                    $userActivityModel->updateSessionActivity('node', $nodeId, $ip, $robotKey, $user);
-                }
-            }
+            $userActivityModel->trackViewerUsage('node', $response->params['thread']['node_id'], 'forum', $ip);
         }
 
         return $response;

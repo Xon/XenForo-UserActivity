@@ -39,7 +39,7 @@ trait UserActivityInjector
         {
             /** @var  SV_UserActivity_Model$model */
             $model = $this->getModelFromCache('SV_UserActivity_Model');
-            $model->registerHandler($activityInjector['controller'], $activityInjector['type'], $activityInjector['id']);
+            $model->registerHandler($activityInjector['controller'], $activityInjector);
         }
 
         return parent::_preDispatch($action);
