@@ -7,13 +7,13 @@ class SV_UserActivity_Listener
         $extend[] = 'SV_UserActivity_' . $class;
     }
 
-    public static $forumViewCounts = null;
+    public static $viewCounts = null;
 
     public static function templateCreate(&$templateName, array &$params, XenForo_Template_Abstract $template)
     {
-        if (self::$forumViewCounts && !$template->getParam('UA_UsersViewingCount'))
+        if (self::$viewCounts && !$template->getParam('UA_UsersViewingCount'))
         {
-            $template->setParam('UA_UsersViewingCount', self::$forumViewCounts);
+            $template->setParam('UA_UsersViewingCount', self::$viewCounts);
         }
     }
 }

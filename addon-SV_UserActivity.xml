@@ -64,17 +64,33 @@
       <sub_options></sub_options>
       <relation group_id="RainDD_UA_Options" display_order="20"/>
     </option>
-    <option option_id="svUADisplayThreads" edit_format="onoff" data_type="boolean" can_backup="1">
-      <default_value></default_value>
-      <edit_format_params></edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="RainDD_UA_Options" display_order="310"/>
-    </option>
-    <option option_id="svUATrackForum" edit_format="onoff" data_type="boolean" can_backup="1">
-      <default_value></default_value>
-      <edit_format_params></edit_format_params>
-      <sub_options></sub_options>
+    <option option_id="svUADisplayCounts" edit_format="checkbox" data_type="array" can_backup="1">
+      <default_value>a:0:{}</default_value>
+      <edit_format_params>thread=Thread List
+sticky-thread=Sticky Thread List
+forum=Forum List
+find-new=Find New Threads</edit_format_params>
+      <sub_options>thread
+sticky-thread
+forum
+find-new</sub_options>
       <relation group_id="RainDD_UA_Options" display_order="300"/>
+    </option>
+    <option option_id="svUADisplayUsers" edit_format="checkbox" data_type="array" can_backup="1">
+      <default_value>a:6:{s:6:"thread";b:1;s:5:"forum";b:1;s:12:"conversation";b:1;s:6:"report";b:1;s:9:"nf_ticket";b:1;s:11:"nf_calendar";b:1;}</default_value>
+      <edit_format_params>thread=Thread
+forum=Forum
+conversation=Conversation
+report=Report
+nf_ticket=&lt;a href="https://xenforo.com/community/resources/tickets.4549/"&gt;NixFifty's Tickets&lt;/a&gt;
+nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty's Calendar&lt;/a&gt;</edit_format_params>
+      <sub_options>thread
+forum
+conversation
+report
+nf_ticket
+nf_calendar</sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="310"/>
     </option>
   </optiongroups>
   <permissions>
@@ -96,12 +112,10 @@
     <phrase title="option_RainDD_UA_ThreadViewPos_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Enable and choose where in the thread view the container for Viewing Thread will appear.]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewType" version_id="1000000" version_string="1.0.0"><![CDATA[Viewing Thread Display Type]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewType_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Display users name or avatar for users Viewing Thread.]]></phrase>
-    <phrase title="option_svUADisplayThreads" version_id="1050000" version_string="1.5.0"><![CDATA[Display Thread view counts on thread list]]></phrase>
-    <phrase title="option_svUADisplayThreads_explain" version_id="1050000" version_string="1.5.0"><![CDATA[Only shows counts, not a list of users.]]></phrase>
-    <phrase title="option_svUATrackForum" version_id="1050000" version_string="1.5.0"><![CDATA[Track and display user per forum]]></phrase>
-    <phrase title="option_svUATrackForum_explain" version_id="1050000" version_string="1.5.0"><![CDATA[This tracks and displays users per forum. Does not track sub-forum traffic!<br/>
-<br/>
-Only shows counts, not a list of users.]]></phrase>
+    <phrase title="option_svUADisplayCounts" version_id="1050300" version_string="1.5.3"><![CDATA[Display Viewer Counts]]></phrase>
+    <phrase title="option_svUADisplayCounts_explain" version_id="1050300" version_string="1.5.3"><![CDATA[]]></phrase>
+    <phrase title="option_svUADisplayUsers" version_id="1050300" version_string="1.5.3"><![CDATA[Display User List]]></phrase>
+    <phrase title="option_svUADisplayUsers_explain" version_id="1050300" version_string="1.5.3"><![CDATA[]]></phrase>
     <phrase title="option_SV_UA_Cutoff" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[User cutoff]]></phrase>
     <phrase title="option_SV_UA_Cutoff_explain" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[Maximum number of users to display before it is displays as "...and X others".<br/>
 0 to show all usernames always.]]></phrase>

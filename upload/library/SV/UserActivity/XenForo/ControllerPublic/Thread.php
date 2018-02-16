@@ -1,7 +1,7 @@
 <?php
 
 /** @noinspection PhpIncludeInspection */
-include_once('SV/UserActivity/ActivityInjector.php');
+include_once('SV/UserActivity/UserActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Thread
 {
      public function actionIndex()
@@ -45,7 +45,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivi
         'type'       => 'thread',
         'id'         => 'thread_id',
         'actions'    => ['index'],
-        'countsOnly' => false,
+        'activeKey'  => 'thread',
     ];
-    use ActivityInjector;
+    use UserActivityInjector;
 }

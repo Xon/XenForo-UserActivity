@@ -28,6 +28,26 @@ class SV_UserActivity_Installer
         return true;
     }
 
+    protected function extendOption($option, $key, $value)
+    {
+        $options = XenForo_Application::getOptions();
+        /** @var XenForo_DataWriter_Option $dw */
+        $dw = XenForo_DataWriter::create('XenForo_DataWriter_Option');
+        if ($dw->setExistingData($option))
+        {
+            // update in-memory copy
+            $arr = $options->{$option};
+            $arr[$key] = $value;
+            $options->{$option} = $arr;
+
+            $arr = @unserialize($dw->get('option_value'));
+            if (!$arr) {$arr = [];}
+            $arr[$key] = $value;
+            $dw->set('option_value', $arr);
+            $dw->save();
+        }
+    }
+
     public static function uninstall()
     {
         $db = XenForo_Application::getDb();

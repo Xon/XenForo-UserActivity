@@ -1,6 +1,7 @@
 <?php
 
-include_once('SV/UserActivity/ActivityInjector.php');
+/** @noinspection PhpIncludeInspection */
+include_once('SV/UserActivity/UserActivityInjector.php');
 class SV_UserActivity_NixFifty_Calendar_ControllerPublic_Calendar extends XFCP_SV_UserActivity_NixFifty_Calendar_ControllerPublic_Calendar
 {
     protected $activityInjector = [
@@ -8,6 +9,7 @@ class SV_UserActivity_NixFifty_Calendar_ControllerPublic_Calendar extends XFCP_S
         'type'       => 'event',
         'id'         => 'event_id',
         'actions'    => ['view'],
+        'activeKey'  => 'nf_calendar',
     ];
-    use ActivityInjector;
+    use UserActivityInjector;
 }

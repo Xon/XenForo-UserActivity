@@ -1,7 +1,7 @@
 <?php
 
 /** @noinspection PhpIncludeInspection */
-include_once('SV/UserActivity/ActivityInjector.php');
+include_once('SV/UserActivity/UserActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Report extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Report
 {
     protected $activityInjector = [
@@ -9,7 +9,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Report extends XFCP_SV_UserActivi
         'type'       => 'report',
         'id'         => 'report_id',
         'actions'    => ['view'],
-        'countsOnly' => false,
+        'activeKey'  => 'report',
     ];
-    use ActivityInjector;
+    use UserActivityInjector;
 }

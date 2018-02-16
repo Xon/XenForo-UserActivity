@@ -1,6 +1,7 @@
 <?php
 
-include_once('SV/UserActivity/ActivityInjector.php');
+/** @noinspection PhpIncludeInspection */
+include_once('SV/UserActivity/UserActivityInjectorctor');
 class SV_UserActivity_NixFifty_Tickets_ControllerPublic_Ticket extends XFCP_SV_UserActivity_NixFifty_Tickets_ControllerPublic_Ticket
 {
     protected $activityInjector = [
@@ -8,6 +9,7 @@ class SV_UserActivity_NixFifty_Tickets_ControllerPublic_Ticket extends XFCP_SV_U
         'type'       => 'ticket',
         'id'         => 'ticket_id',
         'actions'    => ['view'],
+        'activeKey'  => 'nf_ticket',
     ];
-    use ActivityInjector;
+    use UserActivityInjector;
 }

@@ -1,15 +1,16 @@
 <?php
 
 /** @noinspection PhpIncludeInspection */
-include_once('SV/UserActivity/ActivityInjector.php');
+include_once('SV/UserActivity/UserActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Post extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Post
 {
     protected $activityInjector = [
         'controller' => 'XenForo_ControllerPublic_Post',
         'type'       => 'thread',
         'id'         => 'thread_id',
+        'activeKey'  => 'report',
     ];
-    use ActivityInjector;
+    use UserActivityInjector;
 
     public function canUpdateSessionActivity($controllerName, $action, &$newState)
     {
