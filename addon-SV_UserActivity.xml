@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.5" version_id="1050500" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.5.6" version_id="1050600" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -75,7 +75,8 @@ forum=Forum List
 sub-forum=Sub forum List
 find-new=Find New Threads
 watched-forums=Watched Forum List
-watched-threads=Watched Thread List</edit_format_params>
+watched-threads=Watched Thread List
+conversation=Conversation List</edit_format_params>
       <sub_options>*</sub_options>
       <relation group_id="RainDD_UA_Options" display_order="300"/>
     </option>
@@ -244,6 +245,13 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
 }]]></template>
   </templates>
   <public_template_modifications>
+    <modification template="conversation_list_item" modification_key="conversation_list_item_UA_Containers" description="Adds activity containers (count)" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<a.*?href.*?xen:link.*?conversations.*?\$conversation\.title.*?</a>)#si]]></find>
+      <replace><![CDATA[$1<xen:include template="ua_forum_view_container">
+<xen:set var="$contentType" value="conversation" />
+<xen:set var="$contentId" value="{$conversation.conversation_id}" />
+</xen:include>]]></replace>
+    </modification>
     <modification template="conversation_view" modification_key="conversation_view_UA_Containers" description="Adds activity containers (list)" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canReplyConversation}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
