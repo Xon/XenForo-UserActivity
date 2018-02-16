@@ -88,6 +88,17 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
       <sub_options>*</sub_options>
       <relation group_id="RainDD_UA_Options" display_order="310"/>
     </option>
+    <option option_id="svUAPopulateUsers" edit_format="checkbox" data_type="array" can_backup="1">
+      <default_value>a:6:{s:6:"thread";b:1;s:5:"forum";b:1;s:12:"conversation";b:1;s:6:"report";b:1;s:9:"nf_ticket";b:1;s:11:"nf_calendar";b:1;}</default_value>
+      <edit_format_params>thread=Thread
+forum=Forum
+conversation=Conversation
+report=Report
+nf_ticket=&lt;a href="https://xenforo.com/community/resources/tickets.4549/"&gt;NixFifty's Tickets&lt;/a&gt;
+nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty's Calendar&lt;/a&gt;</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="330"/>
+    </option>
   </optiongroups>
   <permissions>
     <permission_groups>
@@ -109,9 +120,11 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
     <phrase title="option_RainDD_UA_ThreadViewType" version_id="1000000" version_string="1.0.0"><![CDATA[Viewing Thread Display Type]]></phrase>
     <phrase title="option_RainDD_UA_ThreadViewType_explain" version_id="1000000" version_string="1.0.0"><![CDATA[Display users name or avatar for users Viewing Thread.]]></phrase>
     <phrase title="option_svUADisplayCounts" version_id="1050300" version_string="1.5.3"><![CDATA[Display Viewer Counts]]></phrase>
-    <phrase title="option_svUADisplayCounts_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Requires the equivalent content type be tracked by the "Populate & Populate & Display User List" setting]]></phrase>
-    <phrase title="option_svUADisplayUsers" version_id="1050400" version_string="1.5.4"><![CDATA[Populate & Display User List]]></phrase>
-    <phrase title="option_svUADisplayUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Tracks recent users for the above content]]></phrase>
+    <phrase title="option_svUADisplayCounts_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Requires the equivalent content type be tracked by the "Track User Activity" setting]]></phrase>
+    <phrase title="option_svUADisplayUsers" version_id="1050400" version_string="1.5.4"><![CDATA[Display User List]]></phrase>
+    <phrase title="option_svUADisplayUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Requires the equivalent content type be tracked by the "Track User Activity" setting]]></phrase>
+    <phrase title="option_svUAPopulateUsers" version_id="1050400" version_string="1.5.4"><![CDATA[Track User Activity]]></phrase>
+    <phrase title="option_svUAPopulateUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Track's user activity for the listed content types. Required for the above display options to work]]></phrase>
     <phrase title="option_SV_UA_Cutoff" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[User cutoff]]></phrase>
     <phrase title="option_SV_UA_Cutoff_explain" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[Maximum number of users to display before it is displays as "...and X others".<br/>
 0 to show all usernames always.]]></phrase>
@@ -229,7 +242,7 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
 }]]></template>
   </templates>
   <public_template_modifications>
-    <modification template="conversation_view" modification_key="conversation_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="conversation_view" modification_key="conversation_view_UA_Containers" description="Adds activity containers (list)" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canReplyConversation}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
@@ -243,14 +256,19 @@ $2
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>]]></replace>
     </modification>
-    <modification template="forum_view" modification_key="forum_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="forum_view" modification_key="forum_view_UA_Containers" description="Adds activity containers (count)" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#({\$forum\.title}.*?)(</xen:h1>)#si]]></find>
       <replace><![CDATA[$1<xen:include template="ua_forum_view_container">
 <xen:set var="$contentType" value="node" />
 <xen:set var="$contentId" value="{$forum.node_id}" />
 </xen:include>$2]]></replace>
     </modification>
-    <modification template="nf_tickets_ticket_view" modification_key="nf_tickets_ticket_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="forum_view" modification_key="forum_view_UA_Containers2" description="Adds activity containers (list)" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:hook name="forum_view_threads_before]]></find>
+      <replace><![CDATA[<xen:include template="RainDD_UA_ThreadViewContainer" />
+$0]]></replace>
+    </modification>
+    <modification template="nf_tickets_ticket_view" modification_key="nf_tickets_ticket_view_UA_Containers" description="Adds activity containers (list)" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canQuickReply}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
@@ -264,14 +282,14 @@ $2
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>]]></replace>
     </modification>
-    <modification template="node_forum_level_2" modification_key="node_forum_level_2_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="node_forum_level_2" modification_key="node_forum_level_2_UA_Containers" description="Adds activity containers (count)" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#({\$forum\.title}.*?)(</h3>)#si]]></find>
       <replace><![CDATA[$1<xen:include template="ua_forum_view_container">
 <xen:set var="$contentType" value="node" />
 <xen:set var="$contentId" value="{$forum.node_id}" />
 </xen:include>$2]]></replace>
     </modification>
-    <modification template="report_view" modification_key="report_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="report_view" modification_key="report_view_UA_Containers" description="Adds activity containers (list)" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(\s*)(<h3 class="subHeading">{xen:phrase content}</h3>.*?)(<h3 class="subHeading">{xen:phrase comments}</h3>.*?)(<li class="primaryContent">)#si]]></find>
       <replace><![CDATA[$1
 <xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
@@ -287,14 +305,14 @@ $1$3
 </xen:if>
 $4]]></replace>
     </modification>
-    <modification template="thread_list_item" modification_key="thread_list_item_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="thread_list_item" modification_key="thread_list_item_UA_Containers" description="Adds activity containers (count)" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(<a.*?href.*?xen:link.*?threads.*?\$thread\.title.*?</a>)#si]]></find>
       <replace><![CDATA[$1<xen:include template="ua_forum_view_container">
 <xen:set var="$contentType" value="thread" />
 <xen:set var="$contentId" value="{$thread.thread_id}" />
 </xen:include>]]></replace>
     </modification>
-    <modification template="thread_view" modification_key="thread_view_UA_Containers" description="Adds activity containers" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="thread_view" modification_key="thread_view_UA_Containers" description="Adds activity containers (list)" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canQuickReply}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />

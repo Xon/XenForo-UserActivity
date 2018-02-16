@@ -2,7 +2,7 @@
 
 trait UserActivityInjector
 {
-    protected function getSvActivityInjector()
+    protected function getSvActivityInjector($display)
     {
         if (empty($this->activityInjector['controller']) ||
             empty($this->activityInjector['activeKey']))
@@ -12,18 +12,30 @@ trait UserActivityInjector
 
         $key = $this->activityInjector['activeKey'];
         $options = XenForo_Application::getOptions();
-        /** @noinspection PhpUndefinedFieldInspection */
-        if (empty($options->svUADisplayUsers[$key]))
+        if ($display)
         {
-            return null;
+            /** @noinspection PhpUndefinedFieldInspection */
+            if (empty($options->svUADisplayUsers[$key]))
+            {
+                return null;
+            }
         }
+        else
+        {
+            /** @noinspection PhpUndefinedFieldInspection */
+            if (empty($options->svUAPopulateUsers[$key]))
+            {
+                return null;
+            }
+        }
+
 
         return $this->activityInjector;
     }
 
     protected function _preDispatch($action)
     {
-        if ($activityInjector = $this->getSvActivityInjector())
+        if ($activityInjector = $this->getSvActivityInjector(false))
         {
             /** @var  SV_UserActivity_Model$model */
             $model = $this->getModelFromCache('SV_UserActivity_Model');
@@ -35,7 +47,7 @@ trait UserActivityInjector
 
     public function _postDispatch($response, $controllerName, $action)
     {
-        if (($activityInjector = $this->getSvActivityInjector()) &&
+        if (($activityInjector = $this->getSvActivityInjector(true)) &&
             !empty($activityInjector['actions']))
         {
             $actionL = strtolower($action);
