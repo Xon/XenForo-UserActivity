@@ -646,6 +646,57 @@ class SV_UserActivity_Model extends XenForo_Model
     }
 
     /**
+     * @param array $permissions
+     * @param array $nodes
+     * @return array|null
+     */
+    public function getFilteredNodeIds(array $permissions, array $nodes)
+    {
+        if (empty($nodes))
+        {
+            return null;
+        }
+
+        $nodeIds = [];
+        foreach($nodes as $nodeId => $node)
+        {
+            $nodePermissions = $permissions[$nodeId];
+            if (!empty($nodePermissions['viewOthers']) &&
+                !empty($nodePermissions['viewContent']))
+            {
+                $nodeIds[] = $nodeId;
+            }
+        }
+        return $nodeIds;
+    }
+
+    /**
+     * @param array  $params
+     * @param string $key
+     * @param array  $permissions
+     * @return array|null
+     */
+    public function getFilteredThreadIds(array $params, $key, array $permissions)
+    {
+        if (empty($params[$key]))
+        {
+            return null;
+        }
+
+        $threadIds = [];
+        foreach($params[$key] as $thread)
+        {
+            $nodeId = $thread['node_id'];
+            $nodePermissions = $permissions[$nodeId];
+            if (!empty($nodePermissions['viewContent']))
+            {
+                $nodeIds[] = $nodeId;
+            }
+        }
+        return $threadIds;
+    }
+
+    /**
      * @return XenForo_Model|XenForo_Model_User|SV_UserActivity_XenForo_Model_User
      */
     protected function _getUserModel()

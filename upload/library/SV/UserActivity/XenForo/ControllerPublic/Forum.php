@@ -39,25 +39,15 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         array $config)
 
     {
-        if (empty($response->params['nodeList']))
+        if (empty($response->params['nodeList']['nodePermissions']) ||
+            empty($response->params['nodeList']['nodeParents']))
         {
             return null;
         }
-
-        $nodeIds = [];
+        $nodes = $response->params['nodeList']['nodeParents'];
         $permissions = $response->params['nodeList']['nodePermissions'];
-        foreach($response->params['nodeList']['nodeParents'] as $nodeId => $node)
-        {
-            $nodePermissions = $permissions[$nodeId];
-            if (!empty($nodePermissions['viewOthers']) &&
-                !empty($nodePermissions['viewContent']))
-            {
-                $nodeIds[] = $nodeId;
-            }
-        }
 
-
-        return $nodeIds;
+        return $this->_getSVUserActivityModel()->getFilteredNodeIds($permissions, $nodes);
     }
 
     protected function threadFetcher(
@@ -67,7 +57,13 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         array $config)
 
     {
-        return $this->getFilteredThreadIds($response, 'threads');
+        if (empty($response->params['nodeList']['nodePermissions']))
+        {
+            return null;
+        }
+        $permissions = $response->params['nodeList']['nodePermissions'];
+
+        return $this->_getSVUserActivityModel()->getFilteredThreadIds($response->params, 'threads', $permissions);
     }
 
     protected function stickyThreadFetcher(
@@ -77,29 +73,13 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         array $config)
 
     {
-        return $this->getFilteredThreadIds($response, 'stickyThreads');
-    }
-
-    protected function getFilteredThreadIds(XenForo_ControllerResponse_View $response, $key)
-    {
-        if (empty($response->params[$key]) ||
-            empty($response->params['nodeList']))
+        if (empty($response->params['nodeList']['nodePermissions']))
         {
             return null;
         }
-
         $permissions = $response->params['nodeList']['nodePermissions'];
-        $threadIds = [];
-        foreach($response->params[$key] as $thread)
-        {
-            $nodeId = $thread['node_id'];
-            $nodePermissions = $permissions[$nodeId];
-            if (!empty($nodePermissions['viewContent']))
-            {
-                $nodeIds[] = $nodeId;
-            }
-        }
-        return $threadIds;
+
+        return $this->_getSVUserActivityModel()->getFilteredThreadIds($response->params, 'stickyThreads', $permissions);
     }
 
     protected $countActivityInjector = [
@@ -144,4 +124,12 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         'activeKey'  => 'forum',
     ];
     use UserActivityInjector;
+
+    /**
+     * @return XenForo_Model|SV_UserActivity_Model
+     */
+    protected function _getSVUserActivityModel()
+    {
+        return $this->getModelFromCache('SV_UserActivity_Model');
+    }
 }
