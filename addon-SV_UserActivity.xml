@@ -105,7 +105,7 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
     </option>
     <option option_id="svUAThreadNodeTrackLimit" edit_format="spinbox" data_type="integer" can_backup="1">
       <default_value>1</default_value>
-      <edit_format_params></edit_format_params>
+      <edit_format_params>min=-1</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="RainDD_UA_Options" display_order="390"/>
     </option>
