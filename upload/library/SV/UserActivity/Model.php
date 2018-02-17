@@ -77,7 +77,9 @@ class SV_UserActivity_Model extends XenForo_Model
             !isset($response->params['UA_UsersViewing']))
         {
             $handler = $this->getHandler($controllerName);
-            if (empty($handler))
+            if (empty($handler) ||
+                empty($handler['type'])||
+                empty($handler['id']))
             {
                 return;
             }
