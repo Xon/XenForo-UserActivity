@@ -2,7 +2,7 @@
 
 trait UserCountActivityInjector
 {
-    public function _postDispatchType($response, $controllerName, $action)
+    protected function _postDispatchType($response, $controllerName, $action)
     {
         if ($response instanceof XenForo_ControllerResponse_View &&
             !empty($this->countActivityInjector))

@@ -45,7 +45,7 @@ trait UserActivityInjector
         return parent::_preDispatch($action);
     }
 
-    public function _postDispatch($response, $controllerName, $action)
+    protected function _postDispatch($response, $controllerName, $action)
     {
         if (($activityInjector = $this->getSvActivityInjector(true)) &&
             !empty($activityInjector['actions']))
