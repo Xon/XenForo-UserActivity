@@ -659,6 +659,10 @@ class SV_UserActivity_Model extends XenForo_Model
         $nodeIds = [];
         foreach($nodes as $nodeId => $node)
         {
+            if (empty($permissions[$nodeId]))
+            {
+                continue;
+            }
             $nodePermissions = $permissions[$nodeId];
             if (!empty($nodePermissions['viewOthers']) &&
                 !empty($nodePermissions['viewContent']))
@@ -705,7 +709,12 @@ class SV_UserActivity_Model extends XenForo_Model
         $threadIds = [];
         foreach($threads as $thread)
         {
-            $nodePermissions = $permissions[$thread['node_id']];
+            $nodeId = $thread['node_id'];
+            if (empty($permissions[$nodeId]))
+            {
+                continue;
+            }
+            $nodePermissions = $permissions[$nodeId];
             if (!empty($nodePermissions['viewContent']))
             {
                 $threadIds[] = $thread['thread_id'];
