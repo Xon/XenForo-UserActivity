@@ -296,7 +296,6 @@ class SV_UserActivity_Model extends XenForo_Model
         $credis = $this->getCredis();
         if (!$credis)
         {
-            // do not have a fallback
             return $this->_updateSessionActivityFallback($contentType, $contentId, $score, $data, $raw);
         }
         $registry = $this->_getDataRegistryModel();
@@ -396,7 +395,6 @@ class SV_UserActivity_Model extends XenForo_Model
         $pruneChance = $options->UA_pruneChance;
         if (!$credis)
         {
-            // do not have a fallback
             $onlineRecords = $this->_getUsersViewingFallback($contentType, $contentId, $start, $end);
             // check if the activity counter needs pruning
             if ($pruneChance > 0 && mt_rand() < $pruneChance)
@@ -546,7 +544,6 @@ class SV_UserActivity_Model extends XenForo_Model
         $pruneChance = $options->UA_pruneChance;
         if (!$credis)
         {
-            // do not have a fallback
             $onlineRecords = $this->_getUsersViewingCountFallback($fetchData, $start, $end);
             // check if the activity counter needs pruning
             if ($pruneChance > 0 && mt_rand() < $pruneChance)
@@ -673,7 +670,6 @@ class SV_UserActivity_Model extends XenForo_Model
     /**
      * @param array  $params
      * @param string $key
-     * @param array  $permissions
      * @return array|null
      */
     public function getFilteredThreadIds(array $params, $key)

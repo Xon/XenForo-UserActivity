@@ -8,7 +8,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Post extends XFCP_SV_UserActivity
         'controller' => 'XenForo_ControllerPublic_Post',
         'type'       => 'thread',
         'id'         => 'thread_id',
-        'activeKey'  => 'report',
+        'activeKey'  => 'thread',
     ];
     use UserActivityInjector;
 
