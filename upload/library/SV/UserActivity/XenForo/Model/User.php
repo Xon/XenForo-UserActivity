@@ -11,17 +11,10 @@ class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Mo
             $requiredKey = $handler['id'];
             if (!empty($inputParams[$requiredKey]))
             {
-                //$activeKey = null
-                /** @noinspection PhpUndefinedFieldInspection */
-                if (XenForo_Application::getOptions()->SV_UA_TrackRobots || empty($robotKey))
+                $visitor = XenForo_Visitor::getInstance();
+                if ($userId == $visitor['user_id'])
                 {
-                    $visitor = XenForo_Visitor::getInstance();
-                    if ($userId == $visitor['user_id'])
-                    {
-                        /** @var  SV_UserActivity_Model $userActivityModel */
-                        $userActivityModel = $this->getModelFromCache('SV_UserActivity_Model');
-                        $userActivityModel->trackViewerUsage($handler['type'], $inputParams[$requiredKey], $handler['activeKey'], $ip, $robotKey);
-                    }
+                    $userActivityModel->trackViewerUsage($handler['type'], $inputParams[$requiredKey], $handler['activeKey'], $ip, $robotKey);
                 }
             }
         }
