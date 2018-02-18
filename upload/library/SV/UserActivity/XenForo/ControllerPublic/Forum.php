@@ -11,10 +11,51 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
         $response = parent::actionForum();
         // alias forum => node, limitations of activity tracking
         if ($response instanceof XenForo_ControllerResponse_View &&
-            isset($response->params['forum']) && !isset($response->params['node']))
+            isset($response->params['forum']))
         {
-            $response->params['node'] = $response->params['forum'];
+            if (!isset($response->params['node']))
+            {
+                $response->params['node'] = $response->params['forum'];
+            }
+            $options = XenForo_Application::getOptions();
+            if (empty($options->svUAPopulateUsers['forum']))
+            {
+                return $response;
+            }
+
+            $nodeTrackLimit = intval($options->svUAThreadNodeTrackLimit);
+            $nodeTrackLimit = $nodeTrackLimit < 0 ? PHP_INT_MAX : $nodeTrackLimit;
+            /** @var  SV_UserActivity_Model $userActivityModel */
+            $userActivityModel = $this->getModelFromCache('SV_UserActivity_Model');
+
+            $node = $response->params['forum'];
+            if ($nodeTrackLimit > 0)
+            {
+                /** @var XenForo_Model_Node $nodeModel */
+                $nodeModel = $this->getModelFromCache('XenForo_Model_Node');
+                $nodes = $nodeModel->getNodeAncestors($node);
+                if (!$nodes)
+                {
+                    return $response;
+                }
+                $nodes = array_reverse($nodes);
+
+                $count = 1;
+                foreach ($nodes AS $node)
+                {
+                    if ($node['node_type_id'] === 'Forum')
+                    {
+                        $userActivityModel->bufferTrackViewerUsage('node', $node['node_id'], 'forum');
+                        $count++;
+                        if ($count > $nodeTrackLimit)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
         }
+
         return $response;
     }
 
