@@ -4,13 +4,14 @@ trait UserCountActivityInjector
 {
     protected function _postDispatchType($response, $controllerName, $action)
     {
+        /** @noinspection PhpUndefinedClassInspection */
+        parent::_postDispatchType($response, $controllerName, $action);
+
         if ($response instanceof XenForo_ControllerResponse_View &&
             !empty($this->countActivityInjector))
         {
             $this->_injectUserCountIntoResponse($response, $action);
         }
-
-        return parent::_postDispatchType($response, $controllerName, $action);
     }
 
     /**

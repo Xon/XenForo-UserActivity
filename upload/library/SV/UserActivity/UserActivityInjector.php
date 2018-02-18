@@ -35,18 +35,22 @@ trait UserActivityInjector
 
     protected function _preDispatch($action)
     {
+        /** @noinspection PhpUndefinedClassInspection */
+        parent::_preDispatch($action);
+
         if ($activityInjector = $this->getSvActivityInjector(false))
         {
             /** @var  SV_UserActivity_Model$model */
             $model = $this->getModelFromCache('SV_UserActivity_Model');
             $model->registerHandler($activityInjector['controller'], $activityInjector);
         }
-
-        return parent::_preDispatch($action);
     }
 
     protected function _postDispatch($response, $controllerName, $action)
     {
+        /** @noinspection PhpUndefinedClassInspection */
+        parent::_postDispatch($response, $controllerName, $action);
+
         if (($activityInjector = $this->getSvActivityInjector(true)) &&
             !empty($activityInjector['actions']))
         {
@@ -58,7 +62,5 @@ trait UserActivityInjector
                 $model->insertUserActivityIntoViewResponse($activityInjector['controller'], $response);
             }
         }
-
-        return parent::_postDispatch($response, $controllerName, $action);
     }
 }
