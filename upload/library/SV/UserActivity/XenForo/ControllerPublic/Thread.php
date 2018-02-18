@@ -6,7 +6,7 @@ include_once('SV/UserActivity/UserActivityInjector.php');
 include_once('SV/UserActivity/UserCountActivityInjector.php');
 class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivity_XenForo_ControllerPublic_Thread
 {
-     public function actionIndex()
+    public function actionIndex()
     {
         $response = parent::actionIndex();
 
@@ -17,33 +17,35 @@ class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivi
             !empty($options->svUAPopulateUsers['forum']))
         {
             $nodeTrackLimit = intval($options->svUAThreadNodeTrackLimit);
+            $nodeTrackLimit = $nodeTrackLimit < 0 ? PHP_INT_MAX : $nodeTrackLimit;
             /** @var  SV_UserActivity_Model $userActivityModel */
             $userActivityModel = $this->getModelFromCache('SV_UserActivity_Model');
-            $ip = $this->_request->getClientIp(false);
-            if ($nodeTrackLimit === 1 || count($response->params['nodeBreadCrumbs']) == 1)
-            {
-                $userActivityModel->trackViewerUsage('node', $response->params['thread']['node_id'], 'forum', $ip);
-            }
-            else if ($nodeTrackLimit !== 0)
+            if ($nodeTrackLimit !== 0)
             {
                 $node = $response->params['forum'];
-                /** @var XenForo_Model_Node $nodeModel */
-                $nodeModel = $this->getModelFromCache('XenForo_Model_Node');
-                $nodes = $nodeModel->getNodeAncestors($node);
-                $nodes[$node['node_id']] = $node;
-
-                $nodes = array_reverse($nodes);
-
-                $count = $nodeTrackLimit < 0 ? PHP_INT_MAX : $nodeTrackLimit;
-                foreach ($nodes AS $node)
+                $userActivityModel->bufferTrackViewerUsage('node', $node['node_id'], 'forum');
+                if ($nodeTrackLimit > 0)
                 {
-                    if ($node['node_type_id'] === 'Forum' )
+                    /** @var XenForo_Model_Node $nodeModel */
+                    $nodeModel = $this->getModelFromCache('XenForo_Model_Node');
+                    $nodes = $nodeModel->getNodeAncestors($node);
+                    if (!$nodes)
                     {
-                        $userActivityModel->trackViewerUsage('node', $node['node_id'], 'forum', $ip);
-                        $count--;
-                        if ($count <= 0)
+                        return $response;
+                    }
+                    $nodes = array_reverse($nodes);
+
+                    $count = 1;
+                    foreach ($nodes AS $node)
+                    {
+                        if ($node['node_type_id'] === 'Forum')
                         {
-                            break;
+                            $userActivityModel->bufferTrackViewerUsage('node', $node['node_id'], 'forum');
+                            $count++;
+                            if ($count > $nodeTrackLimit)
+                            {
+                                break;
+                            }
                         }
                     }
                 }
@@ -66,7 +68,7 @@ class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivi
             return null;
         }
         $threadIds = [];
-        foreach($response->params['svSimilarThreads'] as $content)
+        foreach ($response->params['svSimilarThreads'] as $content)
         {
             if ($content['content_type'] === 'thread')
             {

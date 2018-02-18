@@ -47,6 +47,7 @@ class SV_UserActivity_Model extends XenForo_Model
     /**
      * @param XenForo_ControllerResponse_Abstract|null $response
      * @param array                                    $fetchData
+     * @throws Zend_Cache_Exception
      */
     public function insertBulkUserActivityIntoViewResponse(&$response, array $fetchData)
     {
@@ -70,6 +71,7 @@ class SV_UserActivity_Model extends XenForo_Model
     /**
      * @param string                                   $controllerName
      * @param XenForo_ControllerResponse_Abstract|null $response
+     * @throws Zend_Cache_Exception
      */
     public function insertUserActivityIntoViewResponse($controllerName, &$response)
     {
@@ -78,7 +80,7 @@ class SV_UserActivity_Model extends XenForo_Model
         {
             $handler = $this->getHandler($controllerName);
             if (empty($handler) ||
-                empty($handler['type'])||
+                empty($handler['type']) ||
                 empty($handler['id']))
             {
                 return;
@@ -217,43 +219,45 @@ class SV_UserActivity_Model extends XenForo_Model
     const LUA_IFZADDEXPIRE_SH1 = 'dc1d76eefaca2f4ccf848a6ed7e80def200ac7b7';
 
     /**
-     * @param string  $contentType
-     * @param integer $contentId
-     * @param integer $time
-     * @param array   $data
-     * @param string  $raw
-     * @return array
+     * @param array $updateSet
+     * @param int   $time
+     * @return void
      */
-    protected function _updateSessionActivityFallback($contentType, $contentId, $time, array $data, $raw)
+    protected function _updateSessionActivityFallback($updateSet, $time)
     {
         $db = $this->_getDb();
-        $db->query(
-            '
-            INSERT INTO xf_sv_user_activity 
-            (content_type, content_id, `timestamp`, `blob`) 
-            VALUES 
-            (?,?,?,?)
-             ON DUPLICATE KEY UPDATE `timestamp` = values(`timestamp`)',
-            [$contentType, $contentId, $time, $raw]
-        );
 
-        return $data;
+        $sqlParts = [];
+        $sqlArgs = [];
+        foreach ($updateSet as $record)
+        {
+            // $record has the format; [content_type, content_id, `blob`]
+            $sqlArgs = \array_merge($sqlArgs, $record);
+            $sqlArgs[] = $time;
+            $sqlParts[] = '(?,?,?,?)';
+        }
+        $sql = implode(',', $sqlParts);
+
+        $db->query(
+            "
+            INSERT INTO xf_sv_user_activity 
+            (content_type, content_id, `blob`, `timestamp`) 
+            VALUES 
+              {$sql}
+             ON DUPLICATE KEY UPDATE `timestamp` = values(`timestamp`)",
+            $sqlArgs
+        );
     }
 
     /**
-     * @param string     $contentType
-     * @param integer    $contentId
-     * @param string     $ip
-     * @param string     $robotKey
-     * @param array|null $viewingUser
-     * @return array|null
-     * @throws Zend_Cache_Exception
+     * @param string $threadViewType
+     * @param string $ip
+     * @param string $robotKey
+     * @param array  $viewingUser
+     * @return array
      */
-    public function updateSessionActivity($contentType, $contentId, $ip, $robotKey, array $viewingUser = null)
+    protected function buildSessionActivityBlob($threadViewType, $ip, $robotKey, $viewingUser)
     {
-        $this->standardizeViewingUserReference($viewingUser);
-
-        $score = XenForo_Application::$time - (XenForo_Application::$time % $this->getSampleInterval());
         $data = [
             'user_id'                => $viewingUser['user_id'],
             'username'               => $viewingUser['username'],
@@ -266,11 +270,8 @@ class SV_UserActivity_Model extends XenForo_Model
             'ip'                     => null,
         ];
 
-        $options = XenForo_Application::getOptions();
         if ($viewingUser['user_id'])
         {
-            /** @noinspection PhpUndefinedFieldInspection */
-            $threadViewType = $options->RainDD_UA_ThreadViewType;
             if ($threadViewType == 0)
             {
                 $data['display_style_group_id'] = $viewingUser['display_style_group_id'];
@@ -292,51 +293,88 @@ class SV_UserActivity_Model extends XenForo_Model
             $data['ip'] = $ip;
         }
 
+        return $data;
+    }
+
+    /**
+     * @param array $trackBuffer
+     * @param array $updateBlob
+     * @return array
+     */
+    protected function buildSessionActivityUpdateSet(array $trackBuffer, array $updateBlob)
+    {
         // encode the data
-        $raw = implode("\n", $data);
+        $raw = implode("\n", $updateBlob);
+        $outputSet = [];
+        foreach ($trackBuffer as $contentType => $contentIds)
+        {
+            foreach ($contentIds as $contentId => $val)
+            {
+                $outputSet[] = [$contentType, $contentId, $raw];
+            }
+        }
+
+        return $outputSet;
+    }
+
+    /**
+     * @param array $updateSet
+     * @throws Zend_Cache_Exception
+     */
+    protected function updateSessionActivity($updateSet)
+    {
+        $score = XenForo_Application::$time - (XenForo_Application::$time % $this->getSampleInterval());
 
         $credis = $this->getCredis();
         if (!$credis)
         {
-            return $this->_updateSessionActivityFallback($contentType, $contentId, $score, $data, $raw);
+            $this->_updateSessionActivityFallback($updateSet, $score);
+
+            return;
         }
         $registry = $this->_getDataRegistryModel();
         $cache = $this->_getCache(true);
         /** @var Credis_Client $credis */
         $useLua = method_exists($registry, 'useLua') && $registry->useLua($cache);
-
-        // record keeping
-        $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
+        $options = XenForo_Application::getOptions();
         /** @noinspection PhpUndefinedFieldInspection */
         $onlineStatusTimeout = max(60, intval($options->onlineStatusTimeout) * 60);
 
-        if ($useLua)
+        // not ideal, but fairly cheap
+        // cluster support requires that each `key` potentially be on a separate host
+        foreach ($updateSet as &$record)
         {
-            $ret = $credis->evalSha(self::LUA_IFZADDEXPIRE_SH1, [$key], [$score, $raw, $onlineStatusTimeout]);
-            if ($ret === null)
+            // $record has the format; [content_type, content_id, `blob`]
+            list($contentType, $contentId, $raw) = $record;
+            // record keeping
+            $key = Cm_Cache_Backend_Redis::PREFIX_KEY . $cache->getOption('cache_id_prefix') . "activity.{$contentType}.{$contentId}";
+
+            if ($useLua)
             {
-                $script =
-                    "local c = tonumber(redis.call('zscore', KEYS[1], ARGV[2])) " .
-                    "local n = tonumber(ARGV[1]) " .
-                    "local retVal = 0 " .
-                    "if c == nil or n > c then " .
-                    "retVal = redis.call('ZADD', KEYS[1], n, ARGV[2]) " .
-                    "end " .
-                    "redis.call('EXPIRE', KEYS[1], ARGV[3]) " .
-                    "return retVal ";
-                $credis->eval($script, [$key], [$score, $raw, $onlineStatusTimeout]);
+                $ret = $credis->evalSha(self::LUA_IFZADDEXPIRE_SH1, [$key], [$score, $raw, $onlineStatusTimeout]);
+                if ($ret === null)
+                {
+                    $script =
+                        "local c = tonumber(redis.call('zscore', KEYS[1], ARGV[2])) " .
+                        "local n = tonumber(ARGV[1]) " .
+                        "local retVal = 0 " .
+                        "if c == nil or n > c then " .
+                        "retVal = redis.call('ZADD', KEYS[1], n, ARGV[2]) " .
+                        "end " .
+                        "redis.call('EXPIRE', KEYS[1], ARGV[3]) " .
+                        "return retVal ";
+                    $credis->eval($script, [$key], [$score, $raw, $onlineStatusTimeout]);
+                }
+            }
+            else
+            {
+                $credis->pipeline()->multi();
+                // O(log(N)) for each item added, where N is the number of elements in the sorted set.
+                $credis->zadd($key, $score, $raw);
+                $credis->expire($key, $onlineStatusTimeout);
+                $credis->exec();
             }
         }
-        else
-        {
-            $credis->pipeline()->multi();
-            // O(log(N)) for each item added, where N is the number of elements in the sorted set.
-            $credis->zadd($key, $score, $raw);
-            $credis->expire($key, $onlineStatusTimeout);
-            $credis->exec();
-        }
-
-        return $data;
     }
 
     const CacheKeys = [
@@ -376,7 +414,14 @@ class SV_UserActivity_Model extends XenForo_Model
         return $records;
     }
 
-    public function getUsersViewing($contentType, $contentId, array $viewingUser = null)
+    /**
+     * @param string     $contentType
+     * @param int        $contentId
+     * @param array|null $viewingUser
+     * @return array
+     * @throws Zend_Cache_Exception
+     */
+    protected function getUsersViewing($contentType, $contentId, array $viewingUser = null)
     {
         $this->standardizeViewingUserReference($viewingUser);
 
@@ -533,7 +578,12 @@ class SV_UserActivity_Model extends XenForo_Model
         return $records;
     }
 
-    public function getUsersViewingCount($fetchData)
+    /**
+     * @param array $fetchData
+     * @return array
+     * @throws Zend_Cache_Exception
+     */
+    protected function getUsersViewingCount($fetchData)
     {
         $options = XenForo_Application::getOptions();
         /** @noinspection PhpUndefinedFieldInspection */
@@ -607,15 +657,17 @@ class SV_UserActivity_Model extends XenForo_Model
     }
 
     /**
-     * @param string      $contentType
-     * @param int         $contentId
-     * @param string      $activeKey
-     * @param string|null $ip
-     * @param string|null $robotKey
-     * @param array|null  $user
-     * @throws Zend_Cache_Exception
+     * Needs to be static as multiple instances of the Model can be created
+     * @var array
      */
-    public function trackViewerUsage($contentType, $contentId, $activeKey, $ip = null, $robotKey = null, array $user = null)
+    protected static $trackBuffer = [];
+
+    /**
+     * @param string $contentType
+     * @param int    $contentId
+     * @param string $activeKey
+     */
+    public function bufferTrackViewerUsage($contentType, $contentId, $activeKey)
     {
         if (!$contentType ||
             !$contentId ||
@@ -630,6 +682,22 @@ class SV_UserActivity_Model extends XenForo_Model
         {
             return;
         }
+        self::$trackBuffer[$contentType][$contentId] = true;
+    }
+
+    /**
+     * @param string|null $ip
+     * @param string|null $robotKey
+     * @param array|null  $user
+     * @throws Zend_Cache_Exception
+     */
+    public function flushTrackViewerUsageBuffer($ip = null, $robotKey = null, array $user = null)
+    {
+        if (!$this->isLogging() && !self::$trackBuffer)
+        {
+            return;
+        }
+        $options = XenForo_Application::getOptions();
 
         if ($robotKey === null && XenForo_Application::isRegistered('session'))
         {
@@ -638,9 +706,24 @@ class SV_UserActivity_Model extends XenForo_Model
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
-        if ($options->SV_UA_TrackRobots || empty($robotKey))
+        if (empty($robotKey) || $options->SV_UA_TrackRobots)
         {
-            $this->updateSessionActivity($contentType, $contentId, $ip, $robotKey, $user);
+            $this->standardizeViewingUserReference($user);
+
+            /** @noinspection PhpUndefinedFieldInspection */
+            $threadViewType = $options->RainDD_UA_ThreadViewType;
+            $blob = $this->buildSessionActivityBlob($threadViewType, $ip, $robotKey, $user);
+            if (!$blob)
+            {
+                return;
+            }
+
+            $updateSet = $this->buildSessionActivityUpdateSet(self::$trackBuffer, $blob);
+            self::$trackBuffer = [];
+            if ($updateSet)
+            {
+                $this->updateSessionActivity($updateSet);
+            }
         }
     }
 
@@ -657,7 +740,7 @@ class SV_UserActivity_Model extends XenForo_Model
         }
 
         $nodeIds = [];
-        foreach($nodes as $nodeId => $node)
+        foreach ($nodes as $nodeId => $node)
         {
             if (empty($permissions[$nodeId]))
             {
@@ -670,6 +753,7 @@ class SV_UserActivity_Model extends XenForo_Model
                 $nodeIds[] = $nodeId;
             }
         }
+
         return $nodeIds;
     }
 
@@ -695,7 +779,7 @@ class SV_UserActivity_Model extends XenForo_Model
         }
         $threads = $params[$key];
         $nodeIds = array_unique(XenForo_Application::arrayColumn($threads, 'node_id'));
-        foreach($nodeIds as $nodeId)
+        foreach ($nodeIds as $nodeId)
         {
             if (!isset($permissions[$nodeId]))
             {
@@ -707,7 +791,7 @@ class SV_UserActivity_Model extends XenForo_Model
         }
 
         $threadIds = [];
-        foreach($threads as $thread)
+        foreach ($threads as $thread)
         {
             $nodeId = $thread['node_id'];
             if (empty($permissions[$nodeId]))
@@ -720,6 +804,7 @@ class SV_UserActivity_Model extends XenForo_Model
                 $threadIds[] = $thread['thread_id'];
             }
         }
+
         return $threadIds;
     }
 

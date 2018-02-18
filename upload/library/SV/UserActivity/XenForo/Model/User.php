@@ -5,21 +5,23 @@ class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Mo
     public function updateSessionActivity($userId, $ip, $controllerName, $action, $viewState, array $inputParams, $viewDate = null, $robotKey = '')
     {
         $userActivityModel = $this->_getSVUserActivityModel();
-        $handler = $userActivityModel->getHandler($controllerName);
-        if (!empty($handler) &&
-            !empty($handler['type']) &&
-            !empty($handler['id']) &&
-            $userActivityModel->isLogging() && $viewState == 'valid')
+        $visitor = XenForo_Visitor::getInstance();
+        if ($userActivityModel->isLogging() && $viewState == 'valid' && $userId === $visitor['user_id'])
         {
-            $requiredKey = $handler['id'];
-            if (!empty($inputParams[$requiredKey]))
+            $handler = $userActivityModel->getHandler($controllerName);
+            if (!empty($handler) &&
+                !empty($handler['type']) &&
+                !empty($handler['id']))
             {
-                $visitor = XenForo_Visitor::getInstance();
-                if ($userId == $visitor['user_id'])
+                $requiredKey = $handler['id'];
+                if (!empty($inputParams[$requiredKey]))
                 {
-                    $userActivityModel->trackViewerUsage($handler['type'], $inputParams[$requiredKey], $handler['activeKey'], $ip, $robotKey);
+
+                    $userActivityModel->bufferTrackViewerUsage($handler['type'], $inputParams[$requiredKey], $handler['activeKey']);
                 }
             }
+
+            $userActivityModel->flushTrackViewerUsageBuffer($ip, $robotKey, $visitor->toArray());
         }
 
         return parent::updateSessionActivity($userId, $ip, $controllerName, $action, $viewState, $inputParams, $viewDate, $robotKey);
