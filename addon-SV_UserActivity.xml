@@ -135,10 +135,10 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
     <phrase title="option_svUADisplayUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Requires the equivalent content type be tracked by the "Track User Activity" setting]]></phrase>
     <phrase title="option_svUAPopulateUsers" version_id="1050400" version_string="1.5.4"><![CDATA[Track User Activity]]></phrase>
     <phrase title="option_svUAPopulateUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Track's user activity for the listed content types. Required for the above display options to work]]></phrase>
-    <phrase title="option_svUAThreadNodeTrackLimit" version_id="1050900" version_string="1.5.9"><![CDATA[Thread Contibute limit]]></phrase>
-    <phrase title="option_svUAThreadNodeTrackLimit_explain" version_id="1050900" version_string="1.5.9"><![CDATA[Limits the number of node's view state touched by when a thread is viewed.<br/>
+    <phrase title="option_svUAThreadNodeTrackLimit" version_id="1060000" version_string="1.6.0rc1"><![CDATA[Thread/Forum Contribute limit]]></phrase>
+    <phrase title="option_svUAThreadNodeTrackLimit_explain" version_id="1060000" version_string="1.6.0rc1"><![CDATA[Limits the number of node's view state touched by when a thread or forum is viewed.<br/>
 <br/>
-When a thread is viewed, the bread-crumb is traced to find each node above the thread to contribute the thread's view to.<br/>
+For MySQL, batched queries are used to update multiple rows. For Redis, this results in a command per update. But Redis updates are cheap.<br/>
 0 to disable<br/>
 -1 for all]]></phrase>
     <phrase title="option_SV_UA_Cutoff" version_id="1000007" version_string="1.0.0 Alpha 7"><![CDATA[User cutoff]]></phrase>
