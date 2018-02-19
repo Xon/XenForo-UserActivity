@@ -20,7 +20,8 @@ class SV_UserActivity_XenForo_ControllerPublic_Thread extends XFCP_SV_UserActivi
             $nodeTrackLimit = $nodeTrackLimit < 0 ? PHP_INT_MAX : $nodeTrackLimit;
             /** @var  SV_UserActivity_Model $userActivityModel */
             $userActivityModel = $this->getModelFromCache('SV_UserActivity_Model');
-            if ($nodeTrackLimit !== 0)
+            if ($nodeTrackLimit !== 0 &&
+                is_callable([$userActivityModel, 'bufferTrackViewerUsage']))
             {
                 $node = $response->params['forum'];
                 $userActivityModel->bufferTrackViewerUsage('node', $node['node_id'], 'forum');

@@ -29,7 +29,8 @@ class SV_UserActivity_XenForo_ControllerPublic_Forum extends XFCP_SV_UserActivit
             $userActivityModel = $this->getModelFromCache('SV_UserActivity_Model');
 
             $node = $response->params['forum'];
-            if ($nodeTrackLimit > 0)
+            if ($nodeTrackLimit > 0 &&
+                is_callable([$userActivityModel, 'bufferTrackViewerUsage']))
             {
                 /** @var XenForo_Model_Node $nodeModel */
                 $nodeModel = $this->getModelFromCache('XenForo_Model_Node');

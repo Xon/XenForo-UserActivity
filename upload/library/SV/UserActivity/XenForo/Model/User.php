@@ -6,7 +6,11 @@ class SV_UserActivity_XenForo_Model_User extends XFCP_SV_UserActivity_XenForo_Mo
     {
         $userActivityModel = $this->_getSVUserActivityModel();
         $visitor = XenForo_Visitor::getInstance();
-        if ($userActivityModel->isLogging() && $viewState == 'valid' && $userId === $visitor['user_id'])
+        if ($userActivityModel->isLogging() &&
+            $viewState == 'valid' &&
+            $userId === $visitor['user_id'] &&
+            is_callable([$userActivityModel, 'bufferTrackViewerUsage']) &&
+            is_callable([$userActivityModel, 'flushTrackViewerUsageBuffer']))
         {
             $handler = $userActivityModel->getHandler($controllerName);
             if (!empty($handler) &&
