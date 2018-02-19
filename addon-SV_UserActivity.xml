@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.6.0rc1" version_id="1060000" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.6.0rc2" version_id="1060002" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -211,7 +211,7 @@ For MySQL, batched queries are used to update multiple rows. For Redis, this res
 {
 	{xen:property RainDD_UA_Avatar}
 }]]></template>
-    <template title="RainDD_UA_ThreadViewContainer" version_id="1050500" version_string="1.5.5"><![CDATA[<xen:if is="{$UA_UsersViewing}">
+    <template title="RainDD_UA_ThreadViewContainer" version_id="1060002" version_string="1.6.0rc2"><![CDATA[<xen:if is="{$UA_UsersViewing}">
 	<xen:if hascontent="true">
 	<xen:require css="RainDD_UA_Thread.css" />
 	<div id="uaThreadViewContainer" class="section secondaryContent">
@@ -237,7 +237,7 @@ For MySQL, batched queries are used to update multiple rows. For Redis, this res
 				<xen:else />
 					<li></li>
 				</xen:if>
-			<xen:elseif is="{$UA_UsersViewing.guests}" />
+			<xen:elseif is="!{$UA_UsersViewing.records} && {$UA_UsersViewing.guests}" />
 				<li></li>
 			</xen:if>
 			</xen:contentcheck>
