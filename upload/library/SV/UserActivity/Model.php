@@ -47,7 +47,7 @@ class SV_UserActivity_Model extends XenForo_Model
     /**
      * @param XenForo_ControllerResponse_Abstract|null $response
      * @param array                                    $fetchData
-     * @throws Zend_Cache_Exception
+     * @throws Exception
      */
     public function insertBulkUserActivityIntoViewResponse(&$response, array $fetchData)
     {
@@ -59,7 +59,15 @@ class SV_UserActivity_Model extends XenForo_Model
                 return;
             }
 
-            $response->params['UA_UsersViewingCount'] = $this->getUsersViewingCount($fetchData);
+            try
+            {
+                $response->params['UA_UsersViewingCount'] = $this->getUsersViewingCount($fetchData);
+            }
+            catch(Exception $e)
+            {
+                // prevent an error causing the page to fail to load
+                XenForo_Error::logException($e, false);
+            }
             if (!empty($response->subView))
             {
                 $response->subView->params['UA_UsersViewingCount'] = $response->params['UA_UsersViewingCount'];
@@ -71,7 +79,7 @@ class SV_UserActivity_Model extends XenForo_Model
     /**
      * @param string                                   $controllerName
      * @param XenForo_ControllerResponse_Abstract|null $response
-     * @throws Zend_Cache_Exception
+     * @throws Exception
      */
     public function insertUserActivityIntoViewResponse($controllerName, &$response)
     {
@@ -98,8 +106,17 @@ class SV_UserActivity_Model extends XenForo_Model
                 return;
             }
 
-            $response->params['UA_UsersViewing'] = $this->getUsersViewing($contentType, $response->params[$contentType][$contentIdField], $visitor->toArray());
-            if ($response->params['UA_UsersViewing'])
+            try
+            {
+                $response->params['UA_UsersViewing'] = $this->getUsersViewing($contentType, $response->params[$contentType][$contentIdField], $visitor->toArray());
+            }
+            catch(Exception $e)
+            {
+                // prevent an error causing the page to fail to load
+                XenForo_Error::logException($e, false);
+            }
+
+            if (!empty($response->params['UA_UsersViewing']))
             {
                 $response->params['UA_ContentType'] = new XenForo_Phrase($contentType);
                 if (!empty($response->subView))
@@ -222,6 +239,7 @@ class SV_UserActivity_Model extends XenForo_Model
      * @param array $updateSet
      * @param int   $time
      * @return void
+     * @throws Zend_Db_Statement_Mysqli_Exception
      */
     protected function _updateSessionActivityFallback($updateSet, $time)
     {
@@ -238,15 +256,51 @@ class SV_UserActivity_Model extends XenForo_Model
         }
         $sql = implode(',', $sqlParts);
 
-        $db->query(
-            "
+        try
+        {
+            $db->query(
+                "
             INSERT INTO xf_sv_user_activity 
             (content_type, content_id, `blob`, `timestamp`) 
             VALUES 
               {$sql}
              ON DUPLICATE KEY UPDATE `timestamp` = values(`timestamp`)",
-            $sqlArgs
-        );
+                $sqlArgs
+            );
+        }
+        /** @noinspection PhpRedundantCatchClauseInspection */
+        catch (Zend_Db_Statement_Mysqli_Exception $e)
+        {
+            // something went wrong, recount the alerts and return
+            if (stripos($e->getMessage(), "Deadlock found when trying to get lock; try restarting transaction") !== false)
+            {
+                if (XenForo_Db::inTransaction($db))
+                {
+                    // why the hell are we inside a transaction?
+                    throw $e;
+                }
+                // do them one at a time
+                $sql[] = '(?,?,?,?)';
+                foreach($updateSet as $record)
+                {
+                    $sqlArgs = $record;
+                    $sqlArgs[] = $time;
+                    $db->query(
+                        "
+                        INSERT INTO xf_sv_user_activity 
+                        (content_type, content_id, `blob`, `timestamp`) 
+                        VALUES 
+                          {$sql}
+                         ON DUPLICATE KEY UPDATE `timestamp` = values(`timestamp`)",
+                        $sqlArgs
+                    );
+                }
+            }
+            else
+            {
+                throw $e;
+            }
+        }
     }
 
     /**
@@ -320,6 +374,7 @@ class SV_UserActivity_Model extends XenForo_Model
     /**
      * @param array $updateSet
      * @throws Zend_Cache_Exception
+     * @throws Zend_Db_Statement_Mysqli_Exception
      */
     protected function updateSessionActivity($updateSet)
     {
@@ -689,7 +744,7 @@ class SV_UserActivity_Model extends XenForo_Model
      * @param string|null $ip
      * @param string|null $robotKey
      * @param array|null  $user
-     * @throws Zend_Cache_Exception
+     * @throws Exception
      */
     public function flushTrackViewerUsageBuffer($ip = null, $robotKey = null, array $user = null)
     {
@@ -722,7 +777,15 @@ class SV_UserActivity_Model extends XenForo_Model
             self::$trackBuffer = [];
             if ($updateSet)
             {
-                $this->updateSessionActivity($updateSet);
+                try
+                {
+                    $this->updateSessionActivity($updateSet);
+                }
+                catch(Exception $e)
+                {
+                    // prevent an error causing the page to fail to load
+                    XenForo_Error::logException($e, false);
+                }
             }
         }
     }
