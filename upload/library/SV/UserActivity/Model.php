@@ -4,7 +4,7 @@ class SV_UserActivity_Model extends XenForo_Model
 {
     protected static $handlers      = [];
     protected static $logging       = true;
-    protected static $forceFallback = false;
+    protected static $forceFallback = true;
 
     public function getSampleInterval()
     {
@@ -351,17 +351,30 @@ class SV_UserActivity_Model extends XenForo_Model
     }
 
     /**
+     * Builds a insert set, sorting is forced if using MySQL
+     *
      * @param array $trackBuffer
      * @param array $updateBlob
+     * @param bool  $sort
      * @return array
      */
-    protected function buildSessionActivityUpdateSet(array $trackBuffer, array $updateBlob)
+    protected function buildSessionActivityUpdateSet(array $trackBuffer, array $updateBlob, $sort = false)
     {
+        $sort = $sort || !$this->getCredis();
         // encode the data
         $raw = implode("\n", $updateBlob);
         $outputSet = [];
+        if ($sort)
+        {
+            // if using MySQL, ensure rows are sorted to reduce deadlock risks
+            ksort($trackBuffer, SORT_STRING);
+        }
         foreach ($trackBuffer as $contentType => $contentIds)
         {
+            if ($sort)
+            {
+                ksort($contentIds, SORT_NUMERIC);
+            }
             foreach ($contentIds as $contentId => $val)
             {
                 $outputSet[] = [$contentType, $contentId, $raw];
