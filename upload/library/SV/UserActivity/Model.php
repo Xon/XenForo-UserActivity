@@ -4,7 +4,7 @@ class SV_UserActivity_Model extends XenForo_Model
 {
     protected static $handlers      = [];
     protected static $logging       = true;
-    protected static $forceFallback = true;
+    protected static $forceFallback = false;
 
     public function getSampleInterval()
     {
