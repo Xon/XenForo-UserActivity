@@ -280,7 +280,7 @@ class SV_UserActivity_Model extends XenForo_Model
                     throw $e;
                 }
                 // do them one at a time
-                $sql[] = '(?,?,?,?)';
+                $sql = '(?,?,?,?)';
                 foreach($updateSet as $record)
                 {
                     $sqlArgs = $record;
