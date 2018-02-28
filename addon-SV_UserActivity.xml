@@ -7,7 +7,7 @@
   <admin_template_modifications/>
   <code_events/>
   <code_event_listeners>
-    <listener event_id="load_class_controller" execute_order="10" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="NixFifty_Calendar_ControllerPublic_Calendar" description="NixFifty_Calendar_ControllerPublic_Calendar"/>
+    <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="NixFifty_Calendar_ControllerPublic_Calendar" description="NixFifty_Calendar_ControllerPublic_Calendar"/>
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Thread" description="XenForo_ControllerPublic_Thread"/>
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Forum" description="XenForo_ControllerPublic_Forum"/>
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Post" description="XenForo_ControllerPublic_Post"/>
@@ -17,7 +17,7 @@
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Watched" description="XenForo_ControllerPublic_Watched"/>
     <listener event_id="load_class_controller" execute_order="31780" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Report" description="XenForo_ControllerPublic_Report"/>
     <listener event_id="load_class_model" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_Model_User" description="XenForo_Model_User"/>
-    <listener event_id="template_create" execute_order="10" callback_class="SV_UserActivity_Listener" callback_method="templateCreate" active="1" hint="node_forum_level_2" description="node_forum_level_2"/>
+    <listener event_id="template_create" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="templateCreate" active="1" hint="node_forum_level_2" description="node_forum_level_2"/>
   </code_event_listeners>
   <cron>
     <entry entry_id="SV_UserActivity_GC" cron_class="SV_UserActivity_CronEntry_ActivityGarbageCollect" cron_method="run" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["-1"],"minutes":["0","5","10","15","20","25","30","35","40","45","50","55"]}]]></entry>
@@ -268,14 +268,14 @@ For MySQL, batched queries are used to update multiple rows. For Redis, this res
 </xen:if>]]></template>
   </templates>
   <public_template_modifications>
-    <modification template="conversation_list_item" modification_key="conversation_list_item_UA_Containers" description="Adds activity containers (count)" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="conversation_list_item" modification_key="conversation_list_item_UA_Containers" description="Adds activity containers (count)" execution_order="6040" enabled="1" action="preg_replace">
       <find><![CDATA[#(<a.*?href.*?xen:link.*?conversations.*?\$conversation\.title.*?</a>)#si]]></find>
       <replace><![CDATA[$1<xen:include template="ua_forum_view_container">
 <xen:set var="$contentType" value="conversation" />
 <xen:set var="$contentId" value="{$conversation.conversation_id}" />
 </xen:include>]]></replace>
     </modification>
-    <modification template="conversation_view" modification_key="conversation_view_UA_Containers" description="Adds activity containers (list)" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="conversation_view" modification_key="conversation_view_UA_Containers" description="Adds activity containers (list)" execution_order="6040" enabled="1" action="preg_replace">
       <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canReplyConversation}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
@@ -289,7 +289,7 @@ $2
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>]]></replace>
     </modification>
-    <modification template="forum_view" modification_key="forum_view_UA_Containers" description="Adds activity containers (count)" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="forum_view" modification_key="forum_view_UA_Containers" description="Adds activity containers (count)" execution_order="6049" enabled="1" action="preg_replace">
       <find><![CDATA[#({\$forum\.title}.*?)(</xen:h1>)#si]]></find>
       <replace><![CDATA[$1<xen:include template="ua_forum_view_container">
 <xen:set var="$contentType" value="node" />
@@ -301,7 +301,7 @@ $2
       <replace><![CDATA[<xen:include template="RainDD_UA_ThreadViewContainer" />
 $0]]></replace>
     </modification>
-    <modification template="nf_tickets_ticket_view" modification_key="nf_tickets_ticket_view_UA_Containers" description="Adds activity containers (list)" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="nf_tickets_ticket_view" modification_key="nf_tickets_ticket_view_UA_Containers" description="Adds activity containers (list)" execution_order="6040" enabled="1" action="preg_replace">
       <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canQuickReply}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
@@ -315,14 +315,14 @@ $2
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>]]></replace>
     </modification>
-    <modification template="node_forum_level_2" modification_key="node_forum_level_2_UA_Containers" description="Adds activity containers (count)" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="node_forum_level_2" modification_key="node_forum_level_2_UA_Containers" description="Adds activity containers (count)" execution_order="6040" enabled="1" action="preg_replace">
       <find><![CDATA[#({\$forum\.title}.*?)(</h3>)#si]]></find>
       <replace><![CDATA[$1<xen:include template="ua_forum_view_container">
 <xen:set var="$contentType" value="node" />
 <xen:set var="$contentId" value="{$forum.node_id}" />
 </xen:include>$2]]></replace>
     </modification>
-    <modification template="report_view" modification_key="report_view_UA_Containers" description="Adds activity containers (list)" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="report_view" modification_key="report_view_UA_Containers" description="Adds activity containers (list)" execution_order="6040" enabled="1" action="preg_replace">
       <find><![CDATA[#(\s*)(<h3 class="subHeading">{xen:phrase content}</h3>.*?)(<h3 class="subHeading">{xen:phrase comments}</h3>.*?)(<li class="primaryContent">)#si]]></find>
       <replace><![CDATA[$1
 <xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
@@ -338,14 +338,14 @@ $1$3
 </xen:if>
 $4]]></replace>
     </modification>
-    <modification template="thread_list_item" modification_key="thread_list_item_UA_Containers" description="Adds activity containers (count)" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="thread_list_item" modification_key="thread_list_item_UA_Containers" description="Adds activity containers (count)" execution_order="6040" enabled="1" action="preg_replace">
       <find><![CDATA[#(<a.*?href.*?xen:link.*?threads.*?\$thread\.title.*?</a>)#si]]></find>
       <replace><![CDATA[$1<xen:include template="ua_forum_view_container">
 <xen:set var="$contentType" value="thread" />
 <xen:set var="$contentId" value="{$thread.thread_id}" />
 </xen:include>]]></replace>
     </modification>
-    <modification template="thread_view" modification_key="thread_view_UA_Containers" description="Adds activity containers (list)" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="thread_view" modification_key="thread_view_UA_Containers" description="Adds activity containers (list)" execution_order="6040" enabled="1" action="preg_replace">
       <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canQuickReply}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
