@@ -339,7 +339,7 @@ $1$3
 $4]]></replace>
     </modification>
     <modification template="thread_list_item" modification_key="thread_list_item_UA_Containers" description="Adds activity containers (count)" execution_order="6040" enabled="1" action="preg_replace">
-      <find><![CDATA[#(<a.*?href.*?xen:link.*?threads.*?\$thread\.title.*?</a>)#si]]></find>
+      <find><![CDATA[#(<h3 class="title">.*?<a.*?href.*?xen:link.*?threads.*?\$thread\.title.*?</a>)#si]]></find>
       <replace><![CDATA[$1<xen:include template="ua_forum_view_container">
 <xen:set var="$contentType" value="thread" />
 <xen:set var="$contentId" value="{$thread.thread_id}" />
