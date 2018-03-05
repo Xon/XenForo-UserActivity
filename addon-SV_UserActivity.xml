@@ -92,6 +92,12 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
       <sub_options>*</sub_options>
       <relation group_id="RainDD_UA_Options" display_order="310"/>
     </option>
+    <option option_id="svUAIncBannedState" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="RainDD_UA_Options" display_order="140"/>
+    </option>
     <option option_id="svUAPopulateUsers" edit_format="checkbox" data_type="array" can_backup="1">
       <default_value>a:6:{s:6:"thread";b:1;s:5:"forum";b:1;s:12:"conversation";b:1;s:6:"report";b:1;s:9:"nf_ticket";b:1;s:11:"nf_calendar";b:1;}</default_value>
       <edit_format_params>thread=Thread
@@ -133,6 +139,8 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
     <phrase title="option_svUADisplayCounts_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Requires the equivalent content type be tracked by the "Track User Activity" setting]]></phrase>
     <phrase title="option_svUADisplayUsers" version_id="1050400" version_string="1.5.4"><![CDATA[Display User List]]></phrase>
     <phrase title="option_svUADisplayUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Requires the equivalent content type be tracked by the "Track User Activity" setting]]></phrase>
+    <phrase title="option_svUAIncBannedState" version_id="1060200" version_string="1.6.2"><![CDATA[Include user banned state]]></phrase>
+    <phrase title="option_svUAIncBannedState_explain" version_id="1060200" version_string="1.6.2"><![CDATA[For compatibility with <a href="https://xenforo.com/community/resources/special-avatar-for-banned-members.811/">Special Avatar for Banned Members</a> this should be ticked.]]></phrase>
     <phrase title="option_svUAPopulateUsers" version_id="1050400" version_string="1.5.4"><![CDATA[Track User Activity]]></phrase>
     <phrase title="option_svUAPopulateUsers_explain" version_id="1050400" version_string="1.5.4"><![CDATA[Track's user activity for the listed content types. Required for the above display options to work]]></phrase>
     <phrase title="option_svUAThreadNodeTrackLimit" version_id="1060000" version_string="1.6.0rc1"><![CDATA[Thread/Forum Contribute limit]]></phrase>

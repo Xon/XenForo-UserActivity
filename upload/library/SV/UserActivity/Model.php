@@ -347,7 +347,42 @@ class SV_UserActivity_Model extends XenForo_Model
             $data['ip'] = $ip;
         }
 
+        /** @noinspection PhpUndefinedFieldInspection */
+        if (XenForo_Application::getOptions()->svUAIncBannedState)
+        {
+            $data['is_banned'] = $viewingUser['is_banned'];
+        }
+
         return $data;
+    }
+
+    protected static $cacheKeys = [
+        'user_id',
+        'username',
+        'visible',
+        'robot',
+        'display_style_group_id',
+        'gender',
+        'avatar_date',
+        'gravatar',
+        'ip',
+        'is_banned', // not always populated but
+    ];
+
+    /**
+     * @param string $blob
+     * @return array|null
+     */
+    protected function decodeSessionBlob($blob)
+    {
+        if (!$blob)
+        {
+            return null;
+        }
+        $data = explode("\n", $blob);
+        $blob = @array_combine(self::$cacheKeys, $data);
+
+        return $blob;
     }
 
     /**
@@ -445,18 +480,6 @@ class SV_UserActivity_Model extends XenForo_Model
         }
     }
 
-    const CacheKeys = [
-        'user_id',
-        'username',
-        'visible',
-        'robot',
-        'display_style_group_id',
-        'gender',
-        'avatar_date',
-        'gravatar',
-        'ip',
-    ];
-
     /**
      * @param string  $contentType
      * @param integer $contentId
@@ -550,8 +573,7 @@ class SV_UserActivity_Model extends XenForo_Model
 
             foreach ($onlineRecords as $rec => $score)
             {
-                $data = explode("\n", $rec);
-                $rec = @array_combine(self::CacheKeys, $data);
+                $rec = $this->decodeSessionBlob($rec);
                 if (empty($rec))
                 {
                     continue;
