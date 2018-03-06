@@ -382,22 +382,22 @@ class SV_UserActivity_Model extends XenForo_Model
         $data = explode("\n", $blob);
         $keyCount = count(self::$cacheKeys);
         $valueCount = count($data);
-        if ($keyCount < $valueCount)
+        if ($keyCount > $valueCount)
         {
-            for ($i = $valueCount; $i > $keyCount; $i--)
+            for ($i = $valueCount; $i < $keyCount; $i++)
+            {
+                $data[] = '';
+            }
+        }
+        else if ($keyCount < $valueCount)
+        {
+            for ($i = $valueCount; $i < $keyCount; $i++)
             {
                 array_pop($data);
             }
             if (!$data)
             {
                 return null;
-            }
-        }
-        else if ($keyCount > $valueCount)
-        {
-            for ($i = $keyCount; $i < $valueCount; $i++)
-            {
-                $data[] = '';
             }
         }
         $blob = @array_combine(self::$cacheKeys, $data);
