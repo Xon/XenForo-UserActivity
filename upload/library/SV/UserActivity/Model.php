@@ -397,7 +397,7 @@ class SV_UserActivity_Model extends XenForo_Model
         {
             for ($i = $keyCount; $i < $valueCount; $i++)
             {
-                $data[] = null;
+                $data[] = '';
             }
         }
         $blob = @array_combine(self::$cacheKeys, $data);
