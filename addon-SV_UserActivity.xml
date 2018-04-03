@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.6.3" version_id="1060300" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.6.4" version_id="1060400" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -310,7 +310,7 @@ $2
 $0]]></replace>
     </modification>
     <modification template="nf_tickets_ticket_view" modification_key="nf_tickets_ticket_view_UA_Containers" description="Adds activity containers (list)" execution_order="6040" enabled="1" action="preg_replace">
-      <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$canQuickReply}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
+      <find><![CDATA[#(<div class="pageNavLinkGroup">.*)(<xen:if is="{\$(.*?\.|)canQuickReply}">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>
