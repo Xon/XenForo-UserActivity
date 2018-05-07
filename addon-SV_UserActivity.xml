@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.6.5" version_id="1060500" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="SV_UserActivity" title="User Activity" version_string="1.6.6" version_id="1060600" url="https://xenforo.com/community/resources/basic-user-activity-by-xon.6040/" install_callback_class="SV_UserActivity_Installer" install_callback_method="install" uninstall_callback_class="SV_UserActivity_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -15,6 +15,7 @@
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="NixFifty_Tickets_ControllerPublic_Ticket" description="NixFifty_Tickets_ControllerPublic_Ticket"/>
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_FindNew" description="XenForo_ControllerPublic_FindNew"/>
     <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Watched" description="XenForo_ControllerPublic_Watched"/>
+    <listener event_id="load_class_controller" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="NFLJ_AMS_ControllerPublic_Article" description="NFLJ_AMS_ControllerPublic_Article"/>
     <listener event_id="load_class_controller" execute_order="31780" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_Report" description="XenForo_ControllerPublic_Report"/>
     <listener event_id="load_class_model" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="load_class" active="1" hint="XenForo_Model_User" description="XenForo_Model_User"/>
     <listener event_id="template_create" execute_order="3178" callback_class="SV_UserActivity_Listener" callback_method="templateCreate" active="1" hint="node_forum_level_2" description="node_forum_level_2"/>
@@ -82,13 +83,14 @@ conversation=Conversation List</edit_format_params>
       <relation group_id="RainDD_UA_Options" display_order="300"/>
     </option>
     <option option_id="svUADisplayUsers" edit_format="checkbox" data_type="array" can_backup="1">
-      <default_value>a:6:{s:6:"thread";b:1;s:5:"forum";b:1;s:12:"conversation";b:1;s:6:"report";b:1;s:9:"nf_ticket";b:1;s:11:"nf_calendar";b:1;}</default_value>
+      <default_value>a:7:{s:6:"thread";s:1:"1";s:5:"forum";s:1:"1";s:12:"conversation";s:1:"1";s:6:"report";s:1:"1";s:9:"nf_ticket";s:1:"1";s:11:"nf_calendar";s:1:"1";s:8:"nflj_ams";s:1:"1";}</default_value>
       <edit_format_params>thread=Thread
 forum=Forum
 conversation=Conversation
 report=Report
 nf_ticket=&lt;a href="https://xenforo.com/community/resources/tickets.4549/"&gt;NixFifty's Tickets&lt;/a&gt;
-nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty's Calendar&lt;/a&gt;</edit_format_params>
+nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty's Calendar&lt;/a&gt;
+nflj_ams=&lt;a href="https://xenaddons.com/store-products/article-management-system/"&gt;Bob's Article Management System&lt;/a&gt;</edit_format_params>
       <sub_options>*</sub_options>
       <relation group_id="RainDD_UA_Options" display_order="310"/>
     </option>
@@ -99,13 +101,14 @@ nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty'
       <relation group_id="RainDD_UA_Options" display_order="140"/>
     </option>
     <option option_id="svUAPopulateUsers" edit_format="checkbox" data_type="array" can_backup="1">
-      <default_value>a:6:{s:6:"thread";b:1;s:5:"forum";b:1;s:12:"conversation";b:1;s:6:"report";b:1;s:9:"nf_ticket";b:1;s:11:"nf_calendar";b:1;}</default_value>
+      <default_value>a:7:{s:6:"thread";s:1:"1";s:5:"forum";s:1:"1";s:12:"conversation";s:1:"1";s:6:"report";s:1:"1";s:9:"nf_ticket";s:1:"1";s:11:"nf_calendar";s:1:"1";s:8:"nflj_ams";s:1:"1";}</default_value>
       <edit_format_params>thread=Thread
 forum=Forum
 conversation=Conversation
 report=Report
 nf_ticket=&lt;a href="https://xenforo.com/community/resources/tickets.4549/"&gt;NixFifty's Tickets&lt;/a&gt;
-nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty's Calendar&lt;/a&gt;</edit_format_params>
+nf_calendar=&lt;a href="https://nixfifty.com/products/calendar.10/"&gt;NixFifty's Calendar&lt;/a&gt;
+nflj_ams=&lt;a href="https://xenaddons.com/store-products/article-management-system/"&gt;Bob's Article Management System&lt;/a&gt;</edit_format_params>
       <sub_options>*</sub_options>
       <relation group_id="RainDD_UA_Options" display_order="330"/>
     </option>
@@ -311,6 +314,20 @@ $0]]></replace>
     </modification>
     <modification template="nf_tickets_ticket_view" modification_key="nf_tickets_ticket_view_UA_Containers" description="Adds activity containers (list)" execution_order="6040" enabled="1" action="preg_replace">
       <find><![CDATA[#(<div class="pageNavLinkGroup[^"]*?">.*)(<xen:if is="{\$[^}]*?canQuickReply}[^"]*?">\s*<xen:include template="quick_reply">.*?</xen:include>\s*</xen:if>)#si]]></find>
+      <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
+	<xen:include template="RainDD_UA_ThreadViewContainer" />
+</xen:if>
+$1
+<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 2">
+	<xen:include template="RainDD_UA_ThreadViewContainer" />
+</xen:if>
+$2
+<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 3">
+	<xen:include template="RainDD_UA_ThreadViewContainer" />
+</xen:if>]]></replace>
+    </modification>
+    <modification template="nflj_ams_article_overview" modification_key="nflj_ams_article_view_UA_Containers" description="Adds activity containers (list)" execution_order="6040" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<xen:if is="{\$authorSuggestedArticles}[^"]*?">.*?<\/xen:if>)\s*(<xen:if is="{\$article\.canViewComments}.*<\/xen:if>)#si]]></find>
       <replace><![CDATA[<xen:if is="{$xenOptions.RainDD_UA_ThreadViewPos} == 1">
 	<xen:include template="RainDD_UA_ThreadViewContainer" />
 </xen:if>
