@@ -9,6 +9,7 @@ Displays user activity below content, supported content:
 - Reports
 - NixFifty's Tickets
 - NixFifty's Calendar
+- Bob's Article Management System
 
 Displays user activity counts inline with title, supported content:
 -  Thread List
