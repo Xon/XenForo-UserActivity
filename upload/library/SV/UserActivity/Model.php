@@ -68,11 +68,14 @@ class SV_UserActivity_Model extends XenForo_Model
                 // prevent an error causing the page to fail to load
                 XenForo_Error::logException($e, false);
             }
-            if (!empty($response->subView))
+            if (isset($response->params['UA_UsersViewingCount']))
             {
-                $response->subView->params['UA_UsersViewingCount'] = $response->params['UA_UsersViewingCount'];
+                if (!empty($response->subView))
+                {
+                    $response->subView->params['UA_UsersViewingCount'] = $response->params['UA_UsersViewingCount'];
+                }
+                SV_UserActivity_Listener::$viewCounts = $response->params['UA_UsersViewingCount'];
             }
-            SV_UserActivity_Listener::$viewCounts = $response->params['UA_UsersViewingCount'];
         }
     }
 
